@@ -46,11 +46,14 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  nativeButton,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+  const isLink = props.render != null;
   return (
     <ButtonPrimitive
       data-slot="button"
+      nativeButton={nativeButton ?? !isLink}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
