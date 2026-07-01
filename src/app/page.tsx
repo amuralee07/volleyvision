@@ -1,20 +1,49 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { DemoButton } from "@/components/demo-button";
+import { LandingHeroHud } from "@/components/landing-hero-hud";
+import { LandingFilmTags } from "@/components/landing-film-tags";
+import { LandingFaq } from "@/components/landing-faq";
+
+const NAV_LINKS = ["Features", "How it works", "FAQ"];
+
+const TRACKING_POINTS = [
+  "Frame-by-frame technique analysis",
+  "Approach timing, arm swing, and positioning",
+  "Insights invisible to the naked eye",
+  "Automated highlight detection",
+];
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="dark flex min-h-screen flex-col bg-[#050508] text-white">
       {/* Nav */}
-      <header className="border-b">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <span className="font-bold text-lg">
-            <span className="text-primary">Volley</span>Vision
-          </span>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" render={<Link href="/login" />}>
-              Sign in
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#050508]/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-xs font-bold text-black">
+              VV
+            </div>
+            <span className="text-sm font-bold tracking-[0.2em] uppercase">VolleyVision</span>
+          </Link>
+
+          <nav className="hidden items-center gap-8 md:flex">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link}
+                href={`#${link.toLowerCase().replace(/ /g, "-")}`}
+                className="text-sm text-white/50 transition-colors hover:text-white"
+              >
+                {link}
+              </a>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" className="text-white/70 hover:text-white hover:bg-white/5" render={<Link href="/login" />}>
+              Log In
             </Button>
-            <Button size="sm" render={<Link href="/signup" />}>
+            <Button size="sm" className="rounded-full bg-white px-5 text-black hover:bg-white/90" render={<Link href="/signup" />}>
               Get Started
             </Button>
           </div>
@@ -22,101 +51,186 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="flex-1 flex items-center justify-center px-4">
-        <div className="mx-auto max-w-3xl text-center py-24">
-          <div className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-6">
-            AI-Powered Volleyball Coaching
+      <section className="relative px-6 pt-28 pb-16 sm:pt-32 sm:pb-20">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-emerald-500/5 blur-[120px]" />
+        </div>
+
+        <div className="relative mx-auto max-w-6xl">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-white/50">Powered by AI</span>
           </div>
-          <h1 className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-            Your personal
-            <br />
-            <span className="text-primary">volleyball coach</span>
-            <br />
-            powered by AI
+
+          <h1 className="max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl lg:leading-[1.05]">
+            AI coaching for volleyball
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Upload your game footage and get instant AI analysis with technique
-            breakdowns, coaching tips, and highlight reels ready to send to
-            college scouts.
+          <p className="mt-5 max-w-2xl text-base text-white/50 sm:text-lg leading-relaxed">
+            AI and computer vision to automatically analyze practice or match film and produce
+            coaching insights for players, coaches, and scouts.
           </p>
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" className="px-8 text-base" render={<Link href="/signup" />}>
-              Start Analyzing Free
-            </Button>
-            <Button variant="outline" size="lg" className="px-8 text-base" render={<Link href="/login" />}>
-              Sign In
-            </Button>
+
+          <div className="mt-10">
+            <LandingHeroHud />
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="border-t bg-muted/30 py-24 px-4">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="text-center text-3xl font-bold tracking-tight mb-4">
-            Everything you need to level up
-          </h2>
-          <p className="text-center text-muted-foreground mb-16 max-w-2xl mx-auto">
-            From practice footage to scouting tapes, VolleyVision gives you the
-            tools to improve and get noticed.
-          </p>
+      {/* Data points */}
+      <section id="features" className="border-t border-white/5 px-6 py-24">
+        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-2 lg:items-center">
+          <div>
+            <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Data Points</p>
+            <h2 className="text-5xl font-bold tracking-tight sm:text-6xl">50,000+</h2>
+            <p className="mt-5 max-w-md text-white/50 leading-relaxed">
+              Like having a coach watching every inch of the court. Thousands of data points per
+              match reveal technique insights invisible to the human eye.
+            </p>
+          </div>
 
-          <div className="grid gap-8 md:grid-cols-3">
-            <div className="rounded-xl border bg-background p-8">
-              <div className="text-3xl mb-4">🎥</div>
-              <h3 className="text-lg font-semibold mb-2">Upload & Analyze</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Drop in your game or practice footage. Our AI watches every
-                play and delivers a detailed breakdown of your technique,
-                positioning, and decision-making.
-              </p>
-            </div>
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8">
+            <p className="mb-5 font-mono text-xs uppercase tracking-[0.2em] text-white/40">Precision Tracking</p>
+            <ul className="space-y-3">
+              {TRACKING_POINTS.map((point) => (
+                <li key={point} className="flex items-start gap-3 text-sm text-white/60">
+                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-emerald-400" />
+                  {point}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
 
-            <div className="rounded-xl border bg-background p-8">
-              <div className="text-3xl mb-4">🏐</div>
-              <h3 className="text-lg font-semibold mb-2">Get Coaching Tips</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Receive personalized feedback on your strengths and areas to
-                improve, complete with specific drills and exercises to work on.
-              </p>
-            </div>
+      {/* Highlight detection */}
+      <section className="border-t border-white/5 px-6 py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 max-w-xl">
+            <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Highlight Detection</p>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Every key moment, tagged.</h2>
+            <p className="mt-4 text-white/50 leading-relaxed">
+              Spikes, blocks, aces, and digs are automatically identified with timestamps.
+              Extract clips and build scout-ready highlight reels in minutes.
+            </p>
+          </div>
 
-            <div className="rounded-xl border bg-background p-8">
-              <div className="text-3xl mb-4">🌟</div>
-              <h3 className="text-lg font-semibold mb-2">Highlight Reels</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                AI automatically identifies your best plays — spikes, blocks,
-                aces. Build shareable highlight tapes and send them straight to
-                college coaches.
-              </p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { label: "Spikes", count: "24", color: "text-red-400" },
+              { label: "Blocks", count: "11", color: "text-blue-400" },
+              { label: "Aces", count: "6", color: "text-emerald-400" },
+              { label: "Digs", count: "18", color: "text-amber-400" },
+            ].map((stat) => (
+              <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 text-center">
+                <p className={`text-4xl font-bold ${stat.color}`}>{stat.count}</p>
+                <p className="mt-1 font-mono text-xs uppercase tracking-wider text-white/40">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Computer vision + AI assistant */}
+      <section id="how-it-works" className="border-t border-white/5 px-6 py-24">
+        <div className="mx-auto grid max-w-6xl gap-16 lg:grid-cols-2">
+          <div>
+            <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Computer Vision</p>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Track every movement.</h2>
+            <p className="mt-4 text-white/50 leading-relaxed">
+              AI tracks player positioning, approach patterns, and technique frame-by-frame.
+              Get detailed feedback on timing, footwork, and decision-making.
+            </p>
+
+            <div className="mt-8 grid grid-cols-3 gap-3">
+              {[
+                { label: "Approach", val: "4-step" },
+                { label: "Jump", val: "0.82m" },
+                { label: "Arm Speed", val: "12.4 m/s" },
+              ].map((m) => (
+                <div key={m.label} className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-center">
+                  <p className="font-mono text-lg font-bold text-emerald-400">{m.val}</p>
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-white/40">{m.label}</p>
+                </div>
+              ))}
             </div>
           </div>
+
+          <div>
+            <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">AI Assistant</p>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Transform film into insights.</h2>
+            <p className="mt-4 text-white/50 leading-relaxed">
+              AI automatically tags plays, analyzes technique, and identifies key moments.
+              Turn hours of footage into searchable, actionable coaching data.
+            </p>
+            <div className="mt-8">
+              <LandingFilmTags />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Coaching cards preview */}
+      <section className="border-t border-white/5 px-6 py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 text-center">
+            <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Personalized Coaching</p>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Strengths, drills, and feedback.</h2>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-6">
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider text-emerald-400/70">Strength</p>
+              <p className="font-semibold text-white/90">Approach Timing</p>
+              <p className="mt-2 text-sm text-white/50">Consistent 4-step approach on outside sets with good rhythm.</p>
+            </div>
+            <div className="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-6">
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider text-amber-400/70">Improve</p>
+              <p className="font-semibold text-white/90">Block Footwork</p>
+              <p className="mt-2 text-sm text-white/50">Late lateral movement on quick middle sets.</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+              <p className="mb-3 font-mono text-[10px] uppercase tracking-wider text-white/40">Drill</p>
+              <p className="font-semibold text-white/90">Mirror Footwork Ladder</p>
+              <p className="mt-2 text-sm text-white/50">3 sets × 10 reps — focus on first-step explosiveness.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="border-t border-white/5 px-6 py-24">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="mb-10 text-center text-3xl font-bold tracking-tight">FAQ</h2>
+          <LandingFaq />
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-24 px-4">
+      <section className="border-t border-white/5 px-6 py-28">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight mb-4">
-            Ready to elevate your game?
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl leading-tight">
+            More time playing,
+            <br />
+            <span className="text-white/50">less time analyzing.</span>
           </h2>
-          <p className="text-muted-foreground mb-8">
-            Join VolleyVision and let AI help you reach your full potential on the court.
-          </p>
-          <Button size="lg" className="px-8 text-base" render={<Link href="/signup" />}>
-            Create Free Account
-          </Button>
+          <p className="mt-5 text-white/40">Film analysis in minutes, not hours.</p>
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button size="lg" className="rounded-full bg-white px-8 text-black hover:bg-white/90" render={<Link href="/signup" />}>
+              Get Started
+            </Button>
+            <DemoButton variant="outline" className="rounded-full border-white/20 bg-transparent px-8 text-white hover:bg-white/5" />
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-8 px-4">
-        <div className="mx-auto max-w-6xl flex items-center justify-between text-sm text-muted-foreground">
-          <span>
-            <span className="font-semibold text-foreground">VolleyVision</span> &mdash;
-            AI-Powered Volleyball Coaching
-          </span>
-          <span>&copy; {new Date().getFullYear()}</span>
+      <footer className="border-t border-white/5 px-6 py-10">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white text-[10px] font-bold text-black">VV</div>
+            <span className="text-sm font-bold tracking-[0.15em] uppercase">VolleyVision</span>
+          </div>
+          <p className="text-xs text-white/30">Built with AI &amp; Computer Vision</p>
+          <p className="text-xs text-white/30">&copy; {new Date().getFullYear()} VolleyVision</p>
         </div>
       </footer>
     </div>

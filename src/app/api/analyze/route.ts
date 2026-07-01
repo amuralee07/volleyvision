@@ -1,13 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { analyzeVideo, uploadVideoToGemini, waitForFileReady } from "@/lib/gemini";
-import { writeFile, unlink, mkdtemp } from "fs/promises";
+import { analyzeVideo, uploadVideoToGemini, waitForFileReady, labelClips } from "@/lib/gemini";
+import { splitIntoSegments, extractSegments } from "@/lib/ffmpeg";
+import { writeFile, unlink, mkdtemp, readFile } from "fs/promises";
+import { execFile } from "child_process";
 import path from "path";
 import os from "os";
+import { v4 as uuidv4 } from "uuid";
 
-export const maxDuration = 300; // 5 minutes for video analysis
+export const maxDuration = 300;
+
+function isYouTubeUrl(str: string) {
+  return str.startsWith("http") && (str.includes("youtube.com") || str.includes("youtu.be"));
+}
+
+function downloadYouTube(url: string, outputPath: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    execFile(
+      "yt-dlp",
+      ["-f", "bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/best[height<=480][ext=mp4]/best[ext=mp4]", "--no-playlist", "--max-filesize", "500M", "-o", outputPath, url],
+      { timeout: 180_000 },
+      (error, _stdout, stderr) => {
+        if (error) reject(new Error(stderr || error.message));
+        else resolve();
+      }
+    );
+  });
+}
 
 export async function POST(request: NextRequest) {
+  let tmpDir: string | null = null;
+
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -31,55 +54,43 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Video not found" }, { status: 404 });
     }
 
-    // Check for existing analysis
-    const { data: existing } = await supabase
-      .from("analyses")
-      .select("id")
-      .eq("video_id", videoId)
-      .single();
+    // Delete previous analysis and clips for re-run
+    await supabase.from("clips").delete().eq("video_id", videoId);
+    await supabase.from("analyses").delete().eq("video_id", videoId);
 
-    if (existing) {
-      return NextResponse.json({ error: "Analysis already exists", analysisId: existing.id }, { status: 409 });
-    }
-
-    // Update video status
     await supabase.from("videos").update({ status: "processing" }).eq("id", videoId);
 
-    // Download video from Supabase Storage
-    const { data: fileData, error: downloadError } = await supabase.storage
-      .from("videos")
-      .download(video.storage_path);
-
-    if (downloadError || !fileData) {
-      await supabase.from("videos").update({ status: "failed" }).eq("id", videoId);
-      return NextResponse.json({ error: "Failed to download video" }, { status: 500 });
-    }
-
-    // Write to temp file for Gemini upload
-    const tmpDir = await mkdtemp(path.join(os.tmpdir(), "vv-"));
-    const ext = video.storage_path.split(".").pop() || "mp4";
-    const tmpPath = path.join(tmpDir, `video.${ext}`);
-    const buffer = Buffer.from(await fileData.arrayBuffer());
-    await writeFile(tmpPath, buffer);
+    tmpDir = await mkdtemp(path.join(os.tmpdir(), "vv-"));
+    const tmpPath = path.join(tmpDir, "video.mp4");
 
     try {
-      // Upload to Gemini
-      const mimeType = ext === "mov" ? "video/quicktime" : `video/${ext}`;
-      const geminiFile = await uploadVideoToGemini(tmpPath, mimeType);
-
-      if (!geminiFile.uri) {
-        throw new Error("Failed to get file URI from Gemini");
+      // Step 1: Download video
+      console.log("[Analyze] Step 1: Downloading video...");
+      if (isYouTubeUrl(video.storage_path)) {
+        await downloadYouTube(video.storage_path, tmpPath);
+      } else {
+        const { data: fileData, error: downloadError } = await supabase.storage
+          .from("videos")
+          .download(video.storage_path);
+        if (downloadError || !fileData) {
+          await supabase.from("videos").update({ status: "failed" }).eq("id", videoId);
+          return NextResponse.json({ error: "Failed to download video" }, { status: 500 });
+        }
+        const buffer = Buffer.from(await fileData.arrayBuffer());
+        await writeFile(tmpPath, buffer);
       }
 
-      // Wait for Gemini to process the file
+      // Step 2: Upload full video to Gemini for coaching analysis
+      console.log("[Analyze] Step 2: Uploading to Gemini for analysis...");
+      const geminiFile = await uploadVideoToGemini(tmpPath, "video/mp4");
+      if (!geminiFile.uri) throw new Error("Failed to get file URI from Gemini");
       if (geminiFile.name && geminiFile.state === "PROCESSING") {
         await waitForFileReady(geminiFile.name);
       }
 
-      // Analyze with Gemini
-      const analysis = await analyzeVideo(geminiFile.uri, geminiFile.mimeType ?? mimeType);
+      const analysis = await analyzeVideo(geminiFile.uri, geminiFile.mimeType ?? "video/mp4");
 
-      // Save analysis to database
+      // Save analysis (without highlights — clips are separate now)
       const { data: savedAnalysis, error: saveError } = await supabase
         .from("analyses")
         .insert({
@@ -87,7 +98,7 @@ export async function POST(request: NextRequest) {
           summary: analysis.summary || "",
           strengths: analysis.strengths || [],
           improvements: analysis.improvements || [],
-          highlights: analysis.highlights || [],
+          highlights: [],
           raw_response: analysis,
         })
         .select("id")
@@ -95,22 +106,89 @@ export async function POST(request: NextRequest) {
 
       if (saveError) throw saveError;
 
-      // Update video status
-      await supabase.from("videos").update({ status: "ready" }).eq("id", videoId);
+      // Step 3: Split video into segments
+      console.log("[Analyze] Step 3: Splitting video into segments...");
+      const segments = await splitIntoSegments(tmpPath, 10, 20);
+      console.log(`[Analyze] Got ${segments.length} segments`);
 
-      return NextResponse.json({
-        success: true,
-        analysisId: savedAnalysis.id,
-      });
-    } finally {
-      // Clean up temp file
-      await unlink(tmpPath).catch(() => {});
+      if (segments.length > 0) {
+        // Step 4: Extract clip segments
+        console.log("[Analyze] Step 4: Extracting clip segments...");
+        const clipsDir = path.join(tmpDir, "clips");
+        const extracted = await extractSegments(tmpPath, segments, clipsDir, 20);
+        console.log(`[Analyze] Extracted ${extracted.length} clips`);
+
+        // Step 5: Have Gemini label each clip
+        console.log("[Analyze] Step 5: Labeling clips with Gemini...");
+        const labels = await labelClips(
+          extracted.map((e) => ({ index: e.segment.index, filePath: e.filePath }))
+        );
+
+        // Step 6: Save highlighted clips to Supabase
+        console.log("[Analyze] Step 6: Saving clips...");
+        for (const ext of extracted) {
+          const label = labels.find((l) => l.index === ext.segment.index);
+          if (!label || !label.is_highlight) continue;
+
+          const clipId = uuidv4();
+          const storagePath = `${user.id}/${clipId}.mp4`;
+
+          // Upload clip to Supabase Storage
+          const clipData = await readFile(ext.filePath);
+          const { error: uploadError } = await supabase.storage
+            .from("clips")
+            .upload(storagePath, clipData, {
+              contentType: "video/mp4",
+              cacheControl: "3600",
+            });
+
+          if (uploadError) {
+            console.error(`[Analyze] Failed to upload clip ${clipId}:`, uploadError.message);
+            continue;
+          }
+
+          await supabase.from("clips").insert({
+            id: clipId,
+            video_id: videoId,
+            analysis_id: savedAnalysis.id,
+            label: label.label || "Highlight",
+            start_time: ext.segment.start,
+            end_time: ext.segment.end,
+            storage_path: storagePath,
+            description: label.description || "",
+            player_feedback: label.player_feedback || "",
+          });
+        }
+      }
+
+      await supabase.from("videos").update({ status: "ready" }).eq("id", videoId);
+      console.log("[Analyze] Complete!");
+
+      return NextResponse.json({ success: true, analysisId: savedAnalysis.id });
+    } catch (err) {
+      await supabase.from("videos").update({ status: "ready" }).eq("id", videoId);
+      throw err;
     }
   } catch (err) {
     console.error("Analysis error:", err);
+
+    const message = err instanceof Error ? err.message : "";
+    if (message.includes("429") || message.includes("quota") || message.includes("RESOURCE_EXHAUSTED")) {
+      return NextResponse.json(
+        { error: "Gemini rate limit reached. Please wait a minute and try again." },
+        { status: 429 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Analysis failed. Please try again." },
       { status: 500 }
     );
+  } finally {
+    // Clean up all temp files
+    if (tmpDir) {
+      const { rm } = await import("fs/promises");
+      await rm(tmpDir, { recursive: true, force: true }).catch(() => {});
+    }
   }
 }

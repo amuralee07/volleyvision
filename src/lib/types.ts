@@ -60,7 +60,9 @@ export interface Clip {
   label: string;
   start_time: number;
   end_time: number;
-  storage_path: string;
+  storage_path: string | null;
+  description: string;
+  player_feedback: string;
   created_at: string;
 }
 

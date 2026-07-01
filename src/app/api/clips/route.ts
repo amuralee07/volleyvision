@@ -2,11 +2,30 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { extractClip } from "@/lib/ffmpeg";
 import { writeFile, readFile, unlink, mkdtemp } from "fs/promises";
+import { execFile } from "child_process";
 import path from "path";
 import os from "os";
 import { v4 as uuidv4 } from "uuid";
 
 export const maxDuration = 120;
+
+function isYouTubeUrl(str: string) {
+  return str.startsWith("http") && (str.includes("youtube.com") || str.includes("youtu.be"));
+}
+
+function downloadYouTube(url: string, outputPath: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    execFile(
+      "yt-dlp",
+      ["-f", "bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/best[height<=480][ext=mp4]/best[ext=mp4]", "--no-playlist", "--max-filesize", "500M", "-o", outputPath, url],
+      { timeout: 180_000 },
+      (error, _stdout, stderr) => {
+        if (error) reject(new Error(stderr || error.message));
+        else resolve();
+      }
+    );
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +44,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify the video belongs to the user
     const { data: video, error: videoError } = await supabase
       .from("videos")
       .select("*")
@@ -37,21 +55,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Video not found" }, { status: 404 });
     }
 
-    // Download the video
-    const { data: fileData, error: downloadError } = await supabase.storage
-      .from("videos")
-      .download(video.storage_path);
-
-    if (downloadError || !fileData) {
-      return NextResponse.json({ error: "Failed to download video" }, { status: 500 });
-    }
-
-    // Write to temp file
     const tmpDir = await mkdtemp(path.join(os.tmpdir(), "vv-clip-"));
-    const ext = video.storage_path.split(".").pop() || "mp4";
-    const inputPath = path.join(tmpDir, `input.${ext}`);
-    const buffer = Buffer.from(await fileData.arrayBuffer());
-    await writeFile(inputPath, buffer);
+    const inputPath = path.join(tmpDir, "input.mp4");
+
+    if (isYouTubeUrl(video.storage_path)) {
+      await downloadYouTube(video.storage_path, inputPath);
+    } else {
+      const { data: fileData, error: downloadError } = await supabase.storage
+        .from("videos")
+        .download(video.storage_path);
+
+      if (downloadError || !fileData) {
+        return NextResponse.json({ error: "Failed to download video" }, { status: 500 });
+      }
+
+      const buffer = Buffer.from(await fileData.arrayBuffer());
+      await writeFile(inputPath, buffer);
+    }
 
     const clipId = uuidv4();
     const clipFilename = `${clipId}.mp4`;

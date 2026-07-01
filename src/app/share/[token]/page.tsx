@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { HighlightReel, Clip, Profile } from "@/lib/types";
 
@@ -20,14 +19,12 @@ export default async function SharedReelPage({ params }: PageProps) {
 
   if (!reel) notFound();
 
-  // Get player profile
   const { data: profile } = await supabase
     .from("profiles")
     .select("*")
     .eq("user_id", reel.user_id)
     .single<Profile>();
 
-  // Fetch clips in order
   const { data: allClips } = await supabase
     .from("clips")
     .select("*")
@@ -48,25 +45,42 @@ export default async function SharedReelPage({ params }: PageProps) {
   );
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="mx-auto max-w-4xl px-4 py-10">
-        {/* Player Info Header */}
-        <div className="mb-8 text-center">
-          <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-2">
-            VolleyVision Highlight Reel
-          </p>
+    <div className="min-h-screen bg-gradient-to-b from-muted/50 to-background">
+      {/* Top bar */}
+      <header className="border-b bg-background/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-14 max-w-4xl items-center justify-center px-6">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-xs">VV</div>
+            <span className="font-bold text-sm">VolleyVision</span>
+            <span className="text-xs text-muted-foreground">&middot; Highlight Reel</span>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-4xl px-6 py-12">
+        {/* Player card */}
+        <div className="mb-10 text-center">
+          {profile && (
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <span className="text-2xl font-bold">
+                {profile.name?.split(" ").map(n => n[0]).join("").toUpperCase() || "?"}
+              </span>
+            </div>
+          )}
           <h1 className="text-3xl font-bold tracking-tight">{reel.title}</h1>
           {profile && (
-            <div className="mt-3 flex items-center justify-center gap-3 text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">{profile.name}</span>
-              {profile.position && <span>&middot; {profile.position}</span>}
-              {profile.team_name && <span>&middot; {profile.team_name}</span>}
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">{profile.name}</span>
+              {profile.position && (
+                <Badge variant="secondary" className="rounded-full text-xs">{profile.position}</Badge>
+              )}
+              {profile.team_name && <span>{profile.team_name}</span>}
               {profile.graduation_year && (
-                <span>&middot; Class of {profile.graduation_year}</span>
+                <span>Class of {profile.graduation_year}</span>
               )}
             </div>
           )}
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-3 text-sm text-muted-foreground">
             {orderedClips.length} highlight{orderedClips.length !== 1 ? "s" : ""}
           </p>
         </div>
@@ -74,36 +88,31 @@ export default async function SharedReelPage({ params }: PageProps) {
         {/* Clips */}
         <div className="space-y-6">
           {clipsWithUrls.map(({ clip, url }, i) => (
-            <Card key={clip.id}>
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <span className="text-muted-foreground text-sm">#{i + 1}</span>
-                  <Badge variant="outline">{clip.label}</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {url && (
-                  <div className="overflow-hidden rounded-lg bg-black">
-                    <video
-                      src={url}
-                      controls
-                      className="w-full aspect-video"
-                      preload="metadata"
-                    />
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <div key={clip.id} className="rounded-2xl border bg-card overflow-hidden shadow-sm">
+              <div className="flex items-center gap-3 px-5 py-3 border-b bg-muted/30">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">
+                  {i + 1}
+                </span>
+                <Badge variant="outline" className="rounded-full">{clip.label}</Badge>
+                <span className="text-xs text-muted-foreground ml-auto">
+                  {Math.round(clip.end_time - clip.start_time)}s
+                </span>
+              </div>
+              {url && (
+                <video src={url} controls className="w-full aspect-video bg-black" preload="metadata" />
+              )}
+            </div>
           ))}
         </div>
 
         {/* Footer */}
-        <div className="mt-12 text-center text-sm text-muted-foreground">
-          <p>
-            Powered by{" "}
-            <span className="font-semibold text-foreground">VolleyVision</span>{" "}
-            &mdash; AI-Powered Volleyball Coaching
-          </p>
+        <div className="mt-16 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-card px-5 py-2.5 shadow-sm">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-[10px]">VV</div>
+            <span className="text-sm">
+              Powered by <span className="font-semibold">VolleyVision</span>
+            </span>
+          </div>
         </div>
       </div>
     </div>

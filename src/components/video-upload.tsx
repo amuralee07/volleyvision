@@ -7,12 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 
 const ACCEPTED_TYPES = ["video/mp4", "video/quicktime", "video/x-msvideo", "video/webm"];
-const MAX_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
+const MAX_SIZE = 2 * 1024 * 1024 * 1024;
 
 export function VideoUpload() {
   const [file, setFile] = useState<File | null>(null);
@@ -26,11 +25,8 @@ export function VideoUpload() {
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
+    if (e.type === "dragenter" || e.type === "dragover") setDragActive(true);
+    else if (e.type === "dragleave") setDragActive(false);
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -51,15 +47,12 @@ export function VideoUpload() {
       return;
     }
     setFile(f);
-    if (!title) {
-      setTitle(f.name.replace(/\.[^/.]+$/, ""));
-    }
+    if (!title) setTitle(f.name.replace(/\.[^/.]+$/, ""));
   }
 
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault();
     if (!file) return;
-
     setUploading(true);
     setProgress(0);
 
@@ -71,20 +64,15 @@ export function VideoUpload() {
       const ext = file.name.split(".").pop();
       const storagePath = `${user.id}/${fileId}.${ext}`;
 
-      // Simulate progress for UX since Supabase doesn't expose upload progress
       const progressInterval = setInterval(() => {
         setProgress((prev) => Math.min(prev + 2, 90));
       }, 200);
 
       const { error: uploadError } = await supabase.storage
         .from("videos")
-        .upload(storagePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
+        .upload(storagePath, file, { cacheControl: "3600", upsert: false });
 
       clearInterval(progressInterval);
-
       if (uploadError) throw uploadError;
 
       setProgress(95);
@@ -101,7 +89,6 @@ export function VideoUpload() {
 
       setProgress(100);
       toast.success("Video uploaded successfully!");
-
       setTimeout(() => {
         router.push(`/video/${fileId}`);
         router.refresh();
@@ -117,12 +104,12 @@ export function VideoUpload() {
   return (
     <form onSubmit={handleUpload} className="space-y-6">
       <div
-        className={`relative rounded-lg border-2 border-dashed p-12 text-center transition-colors ${
+        className={`relative rounded-2xl border-2 border-dashed p-16 text-center transition-all ${
           dragActive
-            ? "border-primary bg-primary/5"
+            ? "border-primary bg-primary/5 scale-[1.01]"
             : file
-            ? "border-green-500 bg-green-50"
-            : "border-muted-foreground/25 hover:border-muted-foreground/50"
+            ? "border-emerald-400 bg-emerald-50/50"
+            : "border-border hover:border-primary/40 hover:bg-muted/30"
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -132,17 +119,18 @@ export function VideoUpload() {
         <input
           type="file"
           accept="video/mp4,video/quicktime,video/x-msvideo,video/webm"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) validateAndSetFile(f);
-          }}
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) validateAndSetFile(f); }}
           className="absolute inset-0 cursor-pointer opacity-0"
           disabled={uploading}
         />
         {file ? (
-          <div className="space-y-2">
-            <div className="text-4xl">🎬</div>
-            <p className="font-medium">{file.name}</p>
+          <div className="space-y-3">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+              <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p className="font-semibold text-lg">{file.name}</p>
             <p className="text-sm text-muted-foreground">
               {(file.size / (1024 * 1024)).toFixed(1)} MB
             </p>
@@ -150,57 +138,77 @@ export function VideoUpload() {
               type="button"
               variant="ghost"
               size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                setFile(null);
-                setTitle("");
-              }}
+              className="text-muted-foreground"
+              onClick={(e) => { e.stopPropagation(); setFile(null); setTitle(""); }}
               disabled={uploading}
             >
-              Remove
+              Choose a different file
             </Button>
           </div>
         ) : (
-          <div className="space-y-2">
-            <div className="text-4xl">📁</div>
-            <p className="font-medium">Drop your video here or click to browse</p>
-            <p className="text-sm text-muted-foreground">
-              MP4, MOV, AVI, or WebM up to 2GB
-            </p>
+          <div className="space-y-4">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-lg font-semibold">Drop your video here</p>
+              <p className="text-sm text-muted-foreground mt-1">or click to browse files</p>
+            </div>
+            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+              <span className="rounded-full bg-muted px-2.5 py-1">MP4</span>
+              <span className="rounded-full bg-muted px-2.5 py-1">MOV</span>
+              <span className="rounded-full bg-muted px-2.5 py-1">AVI</span>
+              <span className="rounded-full bg-muted px-2.5 py-1">WebM</span>
+              <span>&middot;</span>
+              <span>Up to 2GB</span>
+            </div>
           </div>
         )}
       </div>
 
       {file && (
-        <Card>
-          <CardContent className="pt-6 space-y-4">
+        <div className="rounded-2xl border bg-card p-6 space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-sm font-semibold">Video Title</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g., Varsity Match vs Lincoln High"
+              required
+              disabled={uploading}
+              className="h-11"
+            />
+          </div>
+
+          {uploading && (
             <div className="space-y-2">
-              <Label htmlFor="title">Video Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., Varsity Match vs Lincoln High"
-                required
-                disabled={uploading}
-              />
-            </div>
-
-            {uploading && (
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Uploading...</span>
-                  <span>{progress}%</span>
-                </div>
-                <Progress value={progress} />
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Uploading your video...</span>
+                <span className="font-semibold text-primary">{progress}%</span>
               </div>
-            )}
+              <Progress value={progress} className="h-2" />
+            </div>
+          )}
 
-            <Button type="submit" className="w-full" disabled={uploading || !title}>
-              {uploading ? "Uploading..." : "Upload Video"}
-            </Button>
-          </CardContent>
-        </Card>
+          <Button type="submit" className="w-full h-11 rounded-lg font-semibold" disabled={uploading || !title}>
+            {uploading ? (
+              <>
+                <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                </svg>
+                Upload Video
+              </>
+            )}
+          </Button>
+        </div>
       )}
     </form>
   );
