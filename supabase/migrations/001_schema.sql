@@ -77,6 +77,10 @@ create policy "Service can insert analyses"
   on analyses for insert with check (
     exists (select 1 from videos where videos.id = analyses.video_id and videos.user_id = auth.uid())
   );
+create policy "Users can delete own analyses"
+  on analyses for delete using (
+    exists (select 1 from videos where videos.id = analyses.video_id and videos.user_id = auth.uid())
+  );
 
 -- Clips table
 create table if not exists clips (
@@ -86,7 +90,9 @@ create table if not exists clips (
   label text not null default '',
   start_time real not null,
   end_time real not null,
-  storage_path text not null,
+  storage_path text,
+  description text not null default '',
+  player_feedback text not null default '',
   created_at timestamptz default now() not null
 );
 
