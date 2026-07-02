@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VideoPlayer, type VideoPlayerHandle } from "@/components/video-player";
 import { AnalysisResults } from "@/components/analysis-results";
+import { AppPanel, HudCorners } from "@/components/app-ui";
 import { toast } from "sonner";
 import type { Video, Analysis } from "@/lib/types";
 
@@ -52,121 +53,106 @@ export function VideoDetailClient({ video, analysis, videoUrl, isYouTube }: Prop
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-10">
-      {/* Breadcrumb */}
-      <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
-        <Link href="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link>
-        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-        <span className="text-foreground font-medium truncate">{video.title}</span>
+      <div className="mb-8 flex items-center gap-2 font-mono text-xs text-white/40">
+        <Link href="/dashboard" className="transition-colors hover:text-white">Dashboard</Link>
+        <span>/</span>
+        <span className="truncate text-white/70">{video.title}</span>
       </div>
 
-      {/* Header */}
-      <div className="mb-6 flex items-start justify-between">
+      <div className="mb-8 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{video.title}</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Uploaded {new Date(video.created_at).toLocaleDateString("en-US", {
-              month: "long", day: "numeric", year: "numeric",
-            })}
+          <p className="mb-2 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Film Analysis</p>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{video.title}</h1>
+          <p className="mt-2 font-mono text-sm text-white/40">
+            UPLOADED{" "}
+            {new Date(video.created_at).toLocaleDateString("en-US", {
+              month: "short", day: "numeric", year: "numeric",
+            }).toUpperCase()}
+            {video.duration_seconds && <> · {Math.round(video.duration_seconds / 60)} MIN</>}
           </p>
         </div>
-        <Badge variant={video.status === "ready" ? "default" : "secondary"} className="rounded-full">
+        <Badge variant="outline" className="shrink-0 rounded-full border-white/15 bg-white/5 text-white/70">
           {video.status}
         </Badge>
       </div>
 
-      {/* Video Player */}
-      {videoUrl && isYouTube ? (
-        <div className="rounded-2xl overflow-hidden border shadow-sm">
-          <iframe
-            src={videoUrl}
-            className="w-full aspect-video"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            title={video.title}
-          />
-        </div>
-      ) : videoUrl ? (
-        <div className="rounded-2xl overflow-hidden border shadow-sm">
-          <VideoPlayer ref={playerRef} url={videoUrl} title={video.title} />
-        </div>
-      ) : null}
-
-      {/* Analyze Button */}
-      {!currentAnalysis && (
-        <div className="mt-8 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 p-10 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4">
-            <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
-            </svg>
+      {videoUrl && (
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0f] shadow-[0_0_60px_rgba(16,185,129,0.06)]">
+          <HudCorners />
+          <div className="absolute left-4 top-4 z-10 rounded border border-white/10 bg-black/50 px-2 py-0.5 font-mono text-[10px] text-emerald-400/90 backdrop-blur-sm">
+            LIVE FEED
           </div>
-          <h3 className="text-lg font-bold mb-1">Ready to analyze</h3>
-          <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-            Let AI review your footage and provide coaching feedback, technique analysis, and highlight key moments.
-          </p>
-          <Button
-            size="lg"
-            onClick={handleAnalyze}
-            disabled={analyzing}
-            className="rounded-full px-10 shadow-lg shadow-primary/20"
-          >
-            {analyzing ? (
-              <>
-                <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                Analyzing... This may take a minute
-              </>
-            ) : (
-              <>
-                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                </svg>
-                Analyze with AI
-              </>
-            )}
-          </Button>
+          {isYouTube ? (
+            <iframe
+              src={videoUrl}
+              className="aspect-video w-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              title={video.title}
+            />
+          ) : (
+            <VideoPlayer ref={playerRef} url={videoUrl} title={video.title} />
+          )}
         </div>
       )}
 
-      {/* Analysis Results */}
+      {!currentAnalysis && (
+        <AppPanel className="mt-8" title="AI Analysis" badge="Pending">
+          <div className="py-6 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
+              <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold">Ready to analyze</h3>
+            <p className="mx-auto mt-2 mb-6 max-w-md text-sm text-white/50">
+              AI will review your footage for technique, coaching feedback, and highlight moments.
+            </p>
+            <Button
+              size="lg"
+              onClick={handleAnalyze}
+              disabled={analyzing}
+              className="rounded-full bg-white px-10 text-black hover:bg-white/90"
+            >
+              {analyzing ? (
+                <>
+                  <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  Analyzing... This may take a minute
+                </>
+              ) : (
+                "Analyze with AI"
+              )}
+            </Button>
+          </div>
+        </AppPanel>
+      )}
+
       {currentAnalysis && (
         <div className="mt-10 space-y-8">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold">Analysis Results</h2>
+            <div>
+              <p className="mb-1 font-mono text-xs uppercase tracking-[0.2em] text-emerald-400/80">Results</p>
+              <h2 className="text-xl font-bold">Coaching Analysis</h2>
+            </div>
             <Button
               variant="outline"
               size="sm"
               onClick={handleAnalyze}
               disabled={analyzing}
-              className="rounded-full"
+              className="rounded-full border-white/20 hover:bg-white/5"
             >
-              {analyzing ? (
-                <>
-                  <span className="mr-2 inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Re-analyzing...
-                </>
-              ) : (
-                "Re-analyze"
-              )}
+              {analyzing ? "Re-analyzing..." : "Re-analyze"}
             </Button>
           </div>
           <AnalysisResults analysis={currentAnalysis} />
-          <div className="rounded-2xl border bg-card p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold">Extracted Clips</h3>
-                <p className="text-sm text-muted-foreground">AI-identified highlight clips from this video</p>
-              </div>
-            </div>
-            <Button render={<Link href="/clips" />} className="rounded-full">
+          <AppPanel title="Extracted Clips" badge="Auto-tagged">
+            <p className="mb-4 text-sm text-white/50">
+              AI-identified highlight clips from this video are ready in your library.
+            </p>
+            <Button render={<Link href="/clips" />} className="rounded-full bg-white text-black hover:bg-white/90">
               View All Clips
             </Button>
-          </div>
+          </AppPanel>
         </div>
       )}
     </div>

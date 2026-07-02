@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DemoButton } from "@/components/demo-button";
 import { LandingHeroHud } from "@/components/landing-hero-hud";
+import { LandingClipsFeature } from "@/components/landing-clips-feature";
 import { LandingFilmTags } from "@/components/landing-film-tags";
 import { LandingFaq } from "@/components/landing-faq";
 
@@ -12,6 +13,7 @@ const TRACKING_POINTS = [
   "Approach timing, arm swing, and positioning",
   "Insights invisible to the naked eye",
   "Automated highlight detection",
+  "Auto-extracted clips from every upload",
 ];
 
 export default function LandingPage() {
@@ -101,6 +103,13 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Clip extraction */}
+      <section className="border-t border-white/5 px-6 py-24">
+        <div className="mx-auto max-w-6xl">
+          <LandingClipsFeature />
+        </div>
+      </section>
+
       {/* Highlight detection */}
       <section className="border-t border-white/5 px-6 py-24">
         <div className="mx-auto max-w-6xl">
@@ -108,8 +117,8 @@ export default function LandingPage() {
             <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Highlight Detection</p>
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Every key moment, tagged.</h2>
             <p className="mt-4 text-white/50 leading-relaxed">
-              Spikes, blocks, aces, and digs are automatically identified with timestamps.
-              Extract clips and build scout-ready highlight reels in minutes.
+              Spikes, blocks, aces, and digs are automatically identified with timestamps —
+              then saved as individual clips you can review, download, and share.
             </p>
           </div>
 

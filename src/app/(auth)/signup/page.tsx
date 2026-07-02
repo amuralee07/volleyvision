@@ -40,25 +40,23 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="dark flex min-h-screen bg-[#050508] text-white">
       {/* Left branding panel */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-primary">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-chart-2/80" />
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-72 h-72 rounded-full border border-white/30" />
-          <div className="absolute bottom-32 right-16 w-48 h-48 rounded-full border border-white/20" />
-          <div className="absolute top-1/2 left-1/3 w-96 h-96 rounded-full border border-white/10" />
+      <div className="relative hidden overflow-hidden bg-[#050508] lg:flex lg:w-1/2">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-1/4 top-1/3 h-[400px] w-[400px] rounded-full bg-emerald-500/10 blur-[120px]" />
+          <div className="absolute bottom-1/3 right-1/4 h-[300px] w-[300px] rounded-full bg-white/5 blur-[100px]" />
         </div>
-        <div className="relative z-10 flex flex-col justify-between p-12 text-primary-foreground">
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 font-bold">VV</div>
-            <span className="font-bold text-xl">VolleyVision</span>
+        <div className="relative z-10 flex flex-col justify-between p-12">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-xs font-bold text-black">VV</div>
+            <span className="text-sm font-bold tracking-[0.2em] uppercase">VolleyVision</span>
           </div>
           <div>
-            <h2 className="text-3xl font-bold leading-tight mb-4">
+            <h2 className="mb-4 text-3xl font-bold leading-tight text-white/90">
               Your AI-powered path to the next level
             </h2>
-            <p className="text-white/70 text-lg leading-relaxed">
+            <p className="text-lg leading-relaxed text-white/50">
               Professional-grade video analysis and coaching feedback, available
               to every high school player and team.
             </p>
@@ -70,26 +68,26 @@ export default function SignupPage() {
       {/* Right form panel */}
       <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
-          <div className="lg:hidden flex items-center gap-2 mb-10">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-sm">VV</div>
-            <span className="font-bold text-xl tracking-tight">VolleyVision</span>
+          <div className="mb-10 flex items-center gap-2.5 lg:hidden">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-xs font-bold text-black">VV</div>
+            <span className="text-sm font-bold tracking-[0.2em] uppercase">VolleyVision</span>
           </div>
 
           <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Start analyzing your volleyball footage with AI</p>
+          <p className="mt-2 text-sm text-white/50">Start analyzing your volleyball footage with AI</p>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} required className="h-11" />
+              <Input id="name" placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} required className="h-11 border-white/10 bg-white/5" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-11" />
+              <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-11 border-white/10 bg-white/5" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" placeholder="Minimum 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="h-11" />
+              <Input id="password" type="password" placeholder="Minimum 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="h-11 border-white/10 bg-white/5" />
             </div>
             <div className="space-y-2">
               <Label>I am a</Label>
@@ -99,8 +97,8 @@ export default function SignupPage() {
                   onClick={() => setRole("player")}
                   className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-4 transition-all ${
                     role === "player"
-                      ? "border-primary bg-primary/5 text-primary"
-                      : "border-border hover:border-muted-foreground/50"
+                      ? "border-white/30 bg-white/10 text-white"
+                      : "border-white/10 hover:border-white/20"
                   }`}
                 >
                   <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,8 +111,8 @@ export default function SignupPage() {
                   onClick={() => setRole("coach")}
                   className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-4 transition-all ${
                     role === "coach"
-                      ? "border-primary bg-primary/5 text-primary"
-                      : "border-border hover:border-muted-foreground/50"
+                      ? "border-white/30 bg-white/10 text-white"
+                      : "border-white/10 hover:border-white/20"
                   }`}
                 >
                   <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,11 +123,11 @@ export default function SignupPage() {
               </div>
             </div>
             {error && (
-              <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3">
-                <p className="text-sm text-destructive">{error}</p>
+              <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3">
+                <p className="text-sm text-red-400">{error}</p>
               </div>
             )}
-            <Button type="submit" className="w-full h-11 rounded-lg font-semibold" disabled={loading}>
+            <Button type="submit" className="h-11 w-full rounded-full bg-white font-semibold text-black hover:bg-white/90" disabled={loading}>
               {loading ? (
                 <>
                   <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -139,9 +137,9 @@ export default function SignupPage() {
             </Button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-muted-foreground">
+          <p className="mt-8 text-center text-sm text-white/50">
             Already have an account?{" "}
-            <Link href="/login" className="font-semibold text-primary hover:underline underline-offset-4">
+            <Link href="/login" className="font-semibold text-white hover:underline underline-offset-4">
               Sign in
             </Link>
           </p>
