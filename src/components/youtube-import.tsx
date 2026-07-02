@@ -51,9 +51,9 @@ export function YouTubeImport() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="rounded-2xl border bg-card p-8 space-y-6">
-        <div className="text-center mb-2">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-red-100 text-red-600 mb-4">
+      <div className="space-y-6">
+        <div className="mb-2 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/15 text-red-400">
             <svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
               <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
             </svg>
@@ -87,14 +87,14 @@ export function YouTubeImport() {
             checked={analyzeAfter}
             onChange={(e) => setAnalyzeAfter(e.target.checked)}
             disabled={loading}
-            className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+            className="h-4 w-4 rounded border-white/20 bg-white/5 text-emerald-400 focus:ring-emerald-400"
           />
           <span className="text-sm">Automatically analyze after import</span>
         </label>
 
         {loading && status && (
-          <div className="flex items-center gap-3 rounded-xl bg-primary/5 border border-primary/10 p-4">
-            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent shrink-0" />
+          <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+            <span className="inline-block h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent" />
             <div>
               <p className="text-sm font-medium">{status}</p>
               <p className="text-xs text-muted-foreground mt-0.5">This may take a couple minutes for longer videos</p>
@@ -104,7 +104,7 @@ export function YouTubeImport() {
 
         <Button
           type="submit"
-          className="w-full h-11 rounded-lg font-semibold"
+          className="h-11 w-full rounded-full bg-white font-semibold text-black hover:bg-white/90"
           disabled={loading || !isValidUrl}
         >
           {loading ? (

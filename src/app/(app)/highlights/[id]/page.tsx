@@ -57,14 +57,14 @@ export default async function HighlightReelPage({ params }: PageProps) {
             })}
           </p>
         </div>
-        <Button variant="outline" render={<Link href={shareUrl} target="_blank" />}>
+        <Button variant="outline" className="rounded-full border-white/20 hover:bg-white/5" render={<Link href={shareUrl} target="_blank" />}>
           Share Link
         </Button>
       </div>
 
       <div className="space-y-6">
         {clipsWithUrls.map(({ clip, url }, i) => (
-          <Card key={clip.id}>
+          <Card key={clip.id} className="border-white/10 bg-white/[0.03]">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <span className="text-muted-foreground text-sm">#{i + 1}</span>

@@ -13,14 +13,14 @@ function formatTime(seconds: number): string {
 }
 
 const labelColors: Record<string, string> = {
-  spike: "bg-red-100 text-red-700 border-red-200",
-  block: "bg-blue-100 text-blue-700 border-blue-200",
-  ace: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  serve: "bg-purple-100 text-purple-700 border-purple-200",
-  dig: "bg-amber-100 text-amber-700 border-amber-200",
-  rally: "bg-orange-100 text-orange-700 border-orange-200",
-  set: "bg-cyan-100 text-cyan-700 border-cyan-200",
-  save: "bg-teal-100 text-teal-700 border-teal-200",
+  spike: "bg-red-500/15 text-red-400 border-red-500/25",
+  block: "bg-white/10 text-white/70 border-white/15",
+  ace: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
+  serve: "bg-purple-500/15 text-purple-400 border-purple-500/25",
+  dig: "bg-amber-500/15 text-amber-400 border-amber-500/25",
+  rally: "bg-orange-500/15 text-orange-400 border-orange-500/25",
+  set: "bg-cyan-500/15 text-cyan-400 border-cyan-500/25",
+  save: "bg-teal-500/15 text-teal-400 border-teal-500/25",
 };
 
 function getLabelColor(label: string) {
@@ -28,7 +28,7 @@ function getLabelColor(label: string) {
   for (const [k, v] of Object.entries(labelColors)) {
     if (key.includes(k)) return v;
   }
-  return "bg-secondary text-secondary-foreground";
+  return "bg-white/10 text-white/70 border-white/15";
 }
 
 interface HighlightTimelineProps {
@@ -67,60 +67,57 @@ export function HighlightTimeline({ highlights, videoId, analysisId, onSeek }: H
   }
 
   return (
-    <div className="rounded-2xl border bg-card p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+      <div className="mb-6 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white/70">
           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.562.562 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
           </svg>
         </div>
         <div>
           <h3 className="text-lg font-bold">Key Moments</h3>
-          <p className="text-sm text-muted-foreground">{highlights.length} highlights detected</p>
+          <p className="text-sm text-white/50">{highlights.length} highlights detected</p>
         </div>
       </div>
 
       {highlights.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No highlights identified.</p>
+        <p className="text-sm text-white/50">No highlights identified.</p>
       ) : (
         <div className="space-y-3">
           {highlights.map((h, i) => (
             <div
               key={i}
-              className="group flex items-start gap-4 rounded-xl border p-4 transition-all hover:shadow-sm hover:border-primary/20"
+              className="group flex items-start gap-4 rounded-xl border border-white/10 p-4 transition-all hover:border-white/20 hover:bg-white/[0.02]"
             >
-              {/* Timestamp */}
               <button
-                className="shrink-0 flex flex-col items-center rounded-lg bg-muted px-3 py-2 hover:bg-primary/10 transition-colors cursor-pointer"
+                className="flex shrink-0 cursor-pointer flex-col items-center rounded-lg bg-white/5 px-3 py-2 transition-colors hover:bg-emerald-500/10"
                 onClick={() => onSeek?.(h.start_time)}
               >
-                <span className="text-xs font-bold font-mono text-primary">{formatTime(h.start_time)}</span>
-                <span className="text-[10px] text-muted-foreground">to {formatTime(h.end_time)}</span>
+                <span className="font-mono text-xs font-bold text-emerald-400">{formatTime(h.start_time)}</span>
+                <span className="text-[10px] text-white/40">to {formatTime(h.end_time)}</span>
               </button>
 
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1.5">
+              <div className="min-w-0 flex-1">
+                <div className="mb-1.5 flex items-center gap-2">
                   <Badge variant="outline" className={`border text-xs font-semibold ${getLabelColor(h.label)}`}>
                     {h.label}
                   </Badge>
                 </div>
-                <p className="text-sm leading-relaxed">{h.description}</p>
+                <p className="text-sm leading-relaxed text-white/80">{h.description}</p>
                 {h.player_feedback && (
-                  <div className="mt-2 flex items-start gap-2 rounded-lg bg-primary/5 border border-primary/10 p-2.5">
-                    <svg className="h-4 w-4 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="mt-2 flex items-start gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2.5">
+                    <svg className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
                     </svg>
-                    <p className="text-xs text-muted-foreground">{h.player_feedback}</p>
+                    <p className="text-xs text-white/50">{h.player_feedback}</p>
                   </div>
                 )}
               </div>
 
-              {/* Extract button */}
               <Button
                 variant="outline"
                 size="sm"
-                className="shrink-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                className="shrink-0 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
                 disabled={extracting === i}
                 onClick={() => handleExtractClip(h, i)}
               >

@@ -21,9 +21,9 @@ interface ClipCardProps {
 export function ClipCard({ clip, videoUrl, selectable, selected, onToggle }: ClipCardProps) {
   return (
     <Card
-      className={`overflow-hidden transition-all ${
+      className={`overflow-hidden border-white/10 bg-white/[0.03] transition-all ${
         selectable ? "cursor-pointer" : ""
-      } ${selected ? "ring-2 ring-primary" : ""}`}
+      } ${selected ? "ring-2 ring-emerald-400" : ""}`}
       onClick={() => selectable && onToggle?.(clip.id)}
     >
       {videoUrl && (
@@ -46,10 +46,10 @@ export function ClipCard({ clip, videoUrl, selectable, selected, onToggle }: Cli
           </div>
           {selectable && (
             <div
-              className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+              className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
                 selected
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-muted-foreground/30"
+                  ? "border-white bg-white text-black"
+                  : "border-white/30"
               }`}
             >
               {selected && (

@@ -104,12 +104,12 @@ export function VideoUpload() {
   return (
     <form onSubmit={handleUpload} className="space-y-6">
       <div
-        className={`relative rounded-2xl border-2 border-dashed p-16 text-center transition-all ${
+        className={`relative rounded-2xl border-2 border-dashed p-12 text-center transition-all ${
           dragActive
-            ? "border-primary bg-primary/5 scale-[1.01]"
+            ? "border-emerald-400/50 bg-emerald-500/10 scale-[1.01]"
             : file
-            ? "border-emerald-400 bg-emerald-50/50"
-            : "border-border hover:border-primary/40 hover:bg-muted/30"
+            ? "border-emerald-400/40 bg-emerald-500/10"
+            : "border-white/10 hover:border-white/20 hover:bg-white/[0.03]"
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -125,7 +125,7 @@ export function VideoUpload() {
         />
         {file ? (
           <div className="space-y-3">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-400">
               <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -147,7 +147,7 @@ export function VideoUpload() {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-white/70">
               <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
               </svg>
@@ -157,10 +157,10 @@ export function VideoUpload() {
               <p className="text-sm text-muted-foreground mt-1">or click to browse files</p>
             </div>
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-              <span className="rounded-full bg-muted px-2.5 py-1">MP4</span>
-              <span className="rounded-full bg-muted px-2.5 py-1">MOV</span>
-              <span className="rounded-full bg-muted px-2.5 py-1">AVI</span>
-              <span className="rounded-full bg-muted px-2.5 py-1">WebM</span>
+              <span className="rounded-full bg-white/5 px-2.5 py-1 text-white/50">MP4</span>
+              <span className="rounded-full bg-white/5 px-2.5 py-1 text-white/50">MOV</span>
+              <span className="rounded-full bg-white/5 px-2.5 py-1 text-white/50">AVI</span>
+              <span className="rounded-full bg-white/5 px-2.5 py-1 text-white/50">WebM</span>
               <span>&middot;</span>
               <span>Up to 2GB</span>
             </div>
@@ -169,7 +169,7 @@ export function VideoUpload() {
       </div>
 
       {file && (
-        <div className="rounded-2xl border bg-card p-6 space-y-5">
+        <div className="space-y-5 border-t border-white/10 pt-6">
           <div className="space-y-2">
             <Label htmlFor="title" className="text-sm font-semibold">Video Title</Label>
             <Input
@@ -187,13 +187,13 @@ export function VideoUpload() {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Uploading your video...</span>
-                <span className="font-semibold text-primary">{progress}%</span>
+                <span className="font-semibold text-emerald-400">{progress}%</span>
               </div>
               <Progress value={progress} className="h-2" />
             </div>
           )}
 
-          <Button type="submit" className="w-full h-11 rounded-lg font-semibold" disabled={uploading || !title}>
+          <Button type="submit" className="h-11 w-full rounded-full bg-white font-semibold text-black hover:bg-white/90" disabled={uploading || !title}>
             {uploading ? (
               <>
                 <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />

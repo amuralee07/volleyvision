@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import { ClipCard } from "@/components/clip-card";
+import { AppPageHeader, AppEmptyState, AppPanel } from "@/components/app-ui";
 import { toast } from "sonner";
 import type { Clip } from "@/lib/types";
 
@@ -56,41 +56,36 @@ export function ReelBuilderClient({ clipsWithUrls }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Build Highlight Reel</h1>
-        <p className="mt-1 text-muted-foreground">
-          Select clips and create a shareable highlight tape for scouts
-        </p>
-      </div>
+    <div className="mx-auto max-w-4xl px-6 py-10">
+      <AppPageHeader
+        eyebrow="Highlight Reel"
+        title="Build your tape"
+        description="Select clips and create a shareable highlight reel for scouts and recruiters."
+      />
 
       {clipsWithUrls.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="text-5xl mb-4">🎬</div>
-            <h3 className="text-lg font-semibold">No clips available</h3>
-            <p className="mt-1 text-sm text-muted-foreground max-w-sm">
-              First, upload a video, analyze it, and extract some clips.
-            </p>
-          </CardContent>
-        </Card>
+        <AppEmptyState
+          icon={<span className="text-3xl">🎬</span>}
+          title="No clips available"
+          description="Upload a video, run AI analysis, and clips will appear here ready to stitch into a reel."
+        />
       ) : (
         <form onSubmit={handleCreate} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="reel-title">Reel Title</Label>
-            <Input
-              id="reel-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., 2026 Spring Season Highlights"
-              required
-            />
-          </div>
+          <AppPanel title="Reel Details" badge={`${selectedIds.length} selected`}>
+            <div className="space-y-2">
+              <Label htmlFor="reel-title">Reel Title</Label>
+              <Input
+                id="reel-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., 2026 Spring Season Highlights"
+                required
+                className="h-11"
+              />
+            </div>
+          </AppPanel>
 
-          <div>
-            <p className="text-sm font-medium mb-3">
-              Select clips ({selectedIds.length} selected)
-            </p>
+          <AppPanel title="Select Clips" badge={`${clipsWithUrls.length} available`}>
             <div className="grid gap-4 sm:grid-cols-2">
               {clipsWithUrls.map(({ clip, url }) => (
                 <ClipCard
@@ -103,11 +98,11 @@ export function ReelBuilderClient({ clipsWithUrls }: Props) {
                 />
               ))}
             </div>
-          </div>
+          </AppPanel>
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full rounded-full bg-white py-6 text-black hover:bg-white/90"
             disabled={saving || selectedIds.length === 0}
           >
             {saving ? "Creating..." : `Create Highlight Reel (${selectedIds.length} clips)`}
