@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { AppPageHeader } from "@/components/app-ui";
+import { ShareLinkButton } from "@/components/share-link-button";
 import type { HighlightReel, Clip } from "@/lib/types";
 
 interface PageProps {
@@ -41,40 +41,36 @@ export default async function HighlightReelPage({ params }: PageProps) {
     })
   );
 
-  const shareUrl = `/share/${reel.share_token}`;
+  const sharePath = `/share/${reel.share_token}`;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <div className="mb-8 flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{reel.title}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {orderedClips.length} clips &middot; Created{" "}
-            {new Date(reel.created_at).toLocaleDateString("en-US", {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </p>
-        </div>
-        <Button variant="outline" className="rounded-full border-white/20 hover:bg-white/5" render={<Link href={shareUrl} target="_blank" />}>
-          Share Link
-        </Button>
-      </div>
+    <div className="mx-auto max-w-4xl px-6 py-10">
+      <AppPageHeader
+        eyebrow="Highlight Reel"
+        title={reel.title}
+        description={`${orderedClips.length} clips · Created ${new Date(reel.created_at).toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        })}`}
+        action={<ShareLinkButton path={sharePath} />}
+      />
 
       <div className="space-y-6">
         {clipsWithUrls.map(({ clip, url }, i) => (
           <Card key={clip.id} className="border-white/10 bg-white/[0.03]">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <span className="text-muted-foreground text-sm">#{i + 1}</span>
-                <Badge variant="outline">{clip.label}</Badge>
+                <span className="font-mono text-sm text-white/40">#{String(i + 1).padStart(2, "0")}</span>
+                <Badge variant="outline" className="rounded-full border-white/15">
+                  {clip.label}
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {url && (
                 <div className="overflow-hidden rounded-lg bg-black">
-                  <video src={url} controls className="w-full aspect-video" preload="metadata" />
+                  <video src={url} controls className="aspect-video w-full" preload="metadata" />
                 </div>
               )}
             </CardContent>

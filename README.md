@@ -16,13 +16,16 @@ Upload your volleyball footage and get AI-powered analysis, coaching tips, and h
 
 - Node.js 18+
 - FFmpeg installed locally (`brew install ffmpeg` on macOS)
+- `yt-dlp` for YouTube imports (`brew install yt-dlp`)
 
 ### 2. Supabase Setup
 
 1. Create a project at [supabase.com](https://supabase.com)
 2. Go to **SQL Editor** and run the migration file at `supabase/migrations/001_schema.sql`
 3. In **Storage**, ensure the `videos` and `clips` buckets exist (the migration creates them, but verify)
-4. Copy your project URL and anon key from **Settings > API**
+4. Copy your project URL and anon key from **Settings → API**
+5. Enable **Email** auth under **Authentication → Providers → Email**
+6. For local dev, disable **Confirm email** so sign-up works immediately
 
 ### 3. Google Gemini Setup
 
@@ -31,13 +34,16 @@ Upload your volleyball footage and get AI-powered analysis, coaching tips, and h
 
 ### 4. Environment Variables
 
-Edit `.env.local` with your actual values:
+Create `.env.local`:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 GOOGLE_AI_API_KEY=your-gemini-api-key
 ```
+
+The service role key powers **Try Demo** on the landing page (creates a demo user without email rate limits). Never commit this key.
 
 ### 5. Install & Run
 
@@ -50,7 +56,10 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Features
 
+- **Landing Demo** — Interactive HUD synced to demo volleyball footage
+- **Try Demo** — One-click demo login (requires `SUPABASE_SERVICE_ROLE_KEY`)
 - **Video Upload** — Drag-and-drop upload with progress tracking
+- **YouTube Import** — Paste a link to analyze YouTube footage
 - **AI Analysis** — Gemini analyzes your footage for technique, positioning, and decision-making
 - **Coaching Tips** — Strengths, areas to improve, and specific drills
 - **Highlight Detection** — AI identifies key moments (spikes, blocks, aces, etc.) with timestamps
@@ -66,12 +75,12 @@ src/
 │   ├── (auth)/          Login and signup pages
 │   ├── (app)/           Authenticated app pages
 │   │   ├── dashboard/   Video listing
-│   │   ├── upload/      Video upload
+│   │   ├── upload/      Video upload + YouTube import
 │   │   ├── video/[id]/  Video detail + analysis
 │   │   ├── clips/       All extracted clips
 │   │   └── highlights/  Reel builder + viewer
 │   ├── share/[token]/   Public shared reel page
-│   └── api/             API routes (analyze, clips, highlights)
+│   └── api/             API routes (analyze, clips, highlights, demo)
 ├── components/          UI components
 └── lib/                 Supabase clients, Gemini, FFmpeg, types
 ```
