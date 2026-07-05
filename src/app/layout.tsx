@@ -17,6 +17,13 @@ export const metadata: Metadata = {
   title: "VolleyVision — AI Volleyball Coach",
   description:
     "Upload your volleyball footage and get AI-powered analysis, coaching tips, and highlight reels for scouting.",
+  themeColor: "#050508",
+  openGraph: {
+    title: "VolleyVision — AI Volleyball Coach",
+    description:
+      "AI-powered volleyball film analysis, coaching insights, and auto-extracted highlight clips.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

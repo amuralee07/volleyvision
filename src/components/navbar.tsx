@@ -34,7 +34,11 @@ export function Navbar() {
         </Link>
         <nav className="flex items-center gap-1">
           {navLinks.map((link) => {
-            const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+            const isDashboard = link.href === "/dashboard";
+            const isActive =
+              pathname === link.href ||
+              pathname.startsWith(link.href + "/") ||
+              (isDashboard && pathname.startsWith("/video/"));
             return (
               <Button
                 key={link.href}
