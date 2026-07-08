@@ -48,7 +48,7 @@ export function LandingHeroHud() {
   }, []);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/50">
+    <div className="relative w-full overflow-hidden rounded-2xl border border-emerald-500/20 shadow-2xl shadow-emerald-500/10">
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
         <video
           ref={videoRef}
