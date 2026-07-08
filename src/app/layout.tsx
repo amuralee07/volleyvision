@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -13,11 +13,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#050508",
+  colorScheme: "dark",
+};
+
 export const metadata: Metadata = {
   title: "VolleyVision — AI Volleyball Coach",
   description:
     "Upload your volleyball footage and get AI-powered analysis, coaching tips, and highlight reels for scouting.",
-  themeColor: "#050508",
   openGraph: {
     title: "VolleyVision — AI Volleyball Coach",
     description:
