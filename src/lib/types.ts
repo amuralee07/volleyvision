@@ -42,6 +42,29 @@ export interface ImprovementItem {
   drill: string;
 }
 
+/** Shared coaching notes for a team or a single player */
+export interface FeedbackBundle {
+  summary: string;
+  strengths: StrengthItem[];
+  improvements: ImprovementItem[];
+}
+
+export interface TeamFeedback extends FeedbackBundle {
+  id: string;
+  name: string;
+  /** home | away | unidentified */
+  side?: string;
+}
+
+export interface PlayerFeedback extends FeedbackBundle {
+  id: string;
+  name: string;
+  jersey?: string;
+  position?: string;
+  /** Links to TeamFeedback.id when known */
+  team_id?: string;
+}
+
 export interface Analysis {
   id: string;
   video_id: string;
@@ -49,6 +72,10 @@ export interface Analysis {
   strengths: StrengthItem[];
   improvements: ImprovementItem[];
   highlights: HighlightMoment[];
+  /** Per-team coaching notes (both sides when visible in film) */
+  teams?: TeamFeedback[];
+  /** Per-player coaching notes */
+  players?: PlayerFeedback[];
   raw_response: Record<string, unknown>;
   created_at: string;
 }
@@ -79,5 +106,50 @@ export interface AnalysisResponse {
   summary: string;
   strengths: StrengthItem[];
   improvements: ImprovementItem[];
-  highlights: HighlightMoment[];
+  teams?: TeamFeedback[];
+  players?: PlayerFeedback[];
+  highlights?: HighlightMoment[];
+}
+
+export type FeedbackScope =
+  | { kind: "team"; team: TeamFeedback }
+  | { kind: "player"; player: PlayerFeedback };
+
+/** Normalize DB rows + legacy analyses into team/player scopes */
+export function resolvePlayers(analysis: Analysis | null | undefined): PlayerFeedback[] {
+  if (!analysis) return [];
+  if (Array.isArray(analysis.players) && analysis.players.length > 0) {
+    return analysis.players;
+  }
+  const raw = analysis.raw_response?.players;
+  return Array.isArray(raw) ? (raw as PlayerFeedback[]) : [];
+}
+
+export function resolveTeams(analysis: Analysis | null | undefined): TeamFeedback[] {
+  if (!analysis) return [];
+  if (Array.isArray(analysis.teams) && analysis.teams.length > 0) {
+    return analysis.teams;
+  }
+  const raw = analysis.raw_response?.teams;
+  if (Array.isArray(raw) && raw.length > 0) {
+    return raw as TeamFeedback[];
+  }
+  // Legacy: treat top-level notes as a single "Team" scope
+  if (analysis.summary || analysis.strengths?.length || analysis.improvements?.length) {
+    return [
+      {
+        id: "team",
+        name: "Team",
+        side: "overall",
+        summary: analysis.summary || "",
+        strengths: analysis.strengths || [],
+        improvements: analysis.improvements || [],
+      },
+    ];
+  }
+  return [];
+}
+
+export function getFeedbackBundle(scope: FeedbackScope): FeedbackBundle {
+  return scope.kind === "team" ? scope.team : scope.player;
 }

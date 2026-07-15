@@ -9,7 +9,7 @@
 ## Supabase Setup
 
 1. Create a project at [supabase.com](https://supabase.com)
-2. Go to **SQL Editor** and run the migration file at `supabase/migrations/001_schema.sql`
+2. Go to **SQL Editor** and run the migration files in `supabase/migrations/` (start with `001_schema.sql`, then `002_team_player_feedback.sql`)
 3. In **Storage**, ensure the `videos` and `clips` buckets exist (the migration creates them, but verify)
 4. Copy your project URL and anon key from **Settings → API**
 5. Enable **Email** auth under **Authentication → Providers → Email**

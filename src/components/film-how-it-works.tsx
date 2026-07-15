@@ -29,7 +29,7 @@ const STEPS = [
     id: "feedback",
     label: "Feedback",
     title: "Notes you can run in practice",
-    blurb: "Strengths, drills, and clips ready to send to coaches or scouts.",
+    blurb: "Notes for each team on the court — then drill into a specific player.",
   },
 ] as const;
 
@@ -124,27 +124,45 @@ function UploadStage({ playing }: { playing: boolean }) {
   );
 }
 
-const DEMO_ANALYZE_SRC = "/demo/how-it-works.mp4";
+const DEMO_ANALYZE_SRC = "/demo/how-it-works.mp4?v=3";
 
 function AnalyzeStage({ playing }: { playing: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [ready, setReady] = useState(false);
   const [scan, setScan] = useState(0);
   const tags = [
-    { label: "Spike", time: "0:04", color: "border-red-400/30 bg-red-400/10 text-red-300" },
-    { label: "Dig", time: "0:07", color: "border-amber-400/30 bg-amber-400/10 text-amber-300" },
-    { label: "Set", time: "0:09", color: "border-cyan-400/30 bg-cyan-400/10 text-cyan-300" },
+    { label: "Spike", time: "1:24", color: "border-red-400/30 bg-red-400/10 text-red-300", at: 22 },
+    { label: "Dig", time: "4:51", color: "border-amber-400/30 bg-amber-400/10 text-amber-300", at: 52 },
+    { label: "Set", time: "9:18", color: "border-cyan-400/30 bg-cyan-400/10 text-cyan-300", at: 78 },
   ];
 
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
-    if (playing) {
-      el.currentTime = 0;
+
+    el.muted = true;
+    el.defaultMuted = true;
+    el.playsInline = true;
+
+    const play = () => {
+      if (!playing) return;
+      el.muted = true;
       void el.play().catch(() => {});
+    };
+
+    if (playing) {
+      play();
+      el.addEventListener("loadeddata", play);
+      el.addEventListener("canplay", play);
     } else {
       el.pause();
       el.currentTime = 0;
     }
+
+    return () => {
+      el.removeEventListener("loadeddata", play);
+      el.removeEventListener("canplay", play);
+    };
   }, [playing]);
 
   useEffect(() => {
@@ -153,11 +171,12 @@ function AnalyzeStage({ playing }: { playing: boolean }) {
       return;
     }
     setScan(0);
-    const id = setInterval(() => setScan((s) => (s + 1) % 100), 40);
+    // Slow enough that tags land as "found in the tape," not all in the first few seconds
+    const id = setInterval(() => setScan((s) => Math.min(100, s + 1)), 70);
     return () => clearInterval(id);
   }, [playing]);
 
-  const visibleTags = playing ? Math.min(3, Math.floor(scan / 28) + 1) : 0;
+  const visibleTags = playing ? tags.filter((tag) => scan >= tag.at).length : 0;
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#07070c]">
@@ -166,12 +185,24 @@ function AnalyzeStage({ playing }: { playing: boolean }) {
           ref={videoRef}
           src={DEMO_ANALYZE_SRC}
           muted
+          autoPlay={playing}
           playsInline
           loop
-          preload="metadata"
-          className="absolute inset-0 h-full w-full object-cover opacity-90"
+          preload="auto"
+          onLoadedData={() => setReady(true)}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+            ready ? "opacity-100" : "opacity-0"
+          }`}
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/35" />
+        {!ready && (
+          <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0f]">
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-white/40">
+              <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-emerald-400/60 border-t-transparent" />
+              Loading film…
+            </div>
+          </div>
+        )}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/25" />
         <div className="pointer-events-none absolute left-[34%] top-[28%] h-[42%] w-[22%] rounded-md border border-emerald-400/55 shadow-[0_0_24px_rgba(52,211,153,0.3)]" />
         <div className="absolute left-4 top-4 rounded border border-emerald-500/25 bg-black/55 px-2 py-0.5 font-mono text-[10px] text-emerald-400 backdrop-blur-sm">
           ANALYZING
@@ -211,16 +242,22 @@ function AnalyzeStage({ playing }: { playing: boolean }) {
 
 function FeedbackStage({ playing }: { playing: boolean }) {
   const [show, setShow] = useState(0);
+  const [scope, setScope] = useState<"dark" | "white" | "player">("dark");
 
   useEffect(() => {
     if (!playing) {
       setShow(0);
+      setScope("dark");
       return;
     }
     setShow(0);
+    setScope("dark");
     const t1 = setTimeout(() => setShow(1), 200);
-    const t2 = setTimeout(() => setShow(2), 550);
-    const t3 = setTimeout(() => setShow(3), 900);
+    const t2 = setTimeout(() => setShow(2), 500);
+    const t3 = setTimeout(() => {
+      setShow(3);
+      setScope("player");
+    }, 1600);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -228,35 +265,99 @@ function FeedbackStage({ playing }: { playing: boolean }) {
     };
   }, [playing]);
 
+  const content = {
+    dark: {
+      label: "Dark jerseys",
+      meta: "Team",
+      summary:
+        "Serve receive holds up under pressure. Transition to offense is a half-step late after free balls.",
+      strengthTitle: "Serve receive",
+      strengthBody: "Platform stays quiet — few balls miss the target zone.",
+      drillTitle: "Transition footwork",
+      drillBody: "3 × 8 free-ball to attack — plant before the set leaves the hands.",
+    },
+    white: {
+      label: "White jerseys",
+      meta: "Team",
+      summary:
+        "Aggressive serving creates free balls. Block lines up late on tip/roll options.",
+      strengthTitle: "Serve pressure",
+      strengthBody: "Float depth keeps passers off the net.",
+      drillTitle: "Read-block tips",
+      drillBody: "2 × 10 — hands follow the hitter’s shoulders, not the ball early.",
+    },
+    player: {
+      label: "#12 Outside",
+      meta: "Player · Dark jerseys",
+      summary:
+        "Approach timing is clean on go sets. Arm swing opens early on tips — blockers are reading it.",
+      strengthTitle: "Approach timing",
+      strengthBody: "Consistent 4-step rhythm on outside sets.",
+      drillTitle: "Disguise tip vs swing",
+      drillBody: "Elbow high until contact — decide tip at the last moment.",
+    },
+  }[scope];
+
   return (
     <div className="space-y-3 overflow-hidden rounded-2xl border border-white/10 bg-[#07070c] p-4 sm:p-5">
       <div
-        className={`rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-all duration-500 ${
+        className={`transition-all duration-500 ${
           show >= 1 ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
         }`}
       >
-        <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-emerald-400/70">
-          Coach summary
+        <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
+          View feedback for
         </p>
-        <p className="text-sm leading-relaxed text-white/65">
-          Strong outside approach with consistent 4-step rhythm. Block footwork lags on quick
-          middle sets — first-step speed is the unlock.
+        <div className="mb-4 flex flex-wrap gap-1.5">
+          {(
+            [
+              ["dark", "Dark jerseys"],
+              ["white", "White jerseys"],
+              ["player", "#12 Outside"],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => {
+                setScope(id);
+                setShow(3);
+              }}
+              className={`rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors ${
+                scope === id
+                  ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-300"
+                  : "border-white/10 bg-white/[0.03] text-white/40 hover:text-white/70"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div
+        className={`rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-all duration-500 ${
+          show >= 2 ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+        }`}
+      >
+        <p className="mb-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-emerald-400/70">
+          {content.meta}
         </p>
+        <p className="mb-1.5 text-sm font-semibold text-white/90">{content.label}</p>
+        <p className="text-sm leading-relaxed text-white/65">{content.summary}</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div
           className={`rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 transition-all duration-500 ${
-            show >= 2 ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+            show >= 3 ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
           }`}
         >
           <p className="mb-1 font-mono text-[10px] uppercase tracking-wider text-emerald-400/70">
             Strength
           </p>
-          <p className="text-sm font-semibold text-white/90">Approach timing</p>
-          <p className="mt-1 text-xs text-white/45">
-            Clean rhythm on outside sets — keep that plant foot consistent.
-          </p>
+          <p className="text-sm font-semibold text-white/90">{content.strengthTitle}</p>
+          <p className="mt-1 text-xs text-white/45">{content.strengthBody}</p>
         </div>
         <div
           className={`rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 transition-all duration-500 ${
@@ -266,10 +367,8 @@ function FeedbackStage({ playing }: { playing: boolean }) {
           <p className="mb-1 font-mono text-[10px] uppercase tracking-wider text-amber-400/70">
             Drill
           </p>
-          <p className="text-sm font-semibold text-white/90">Mirror footwork ladder</p>
-          <p className="mt-1 text-xs text-white/45">
-            3 × 10 — explode on the first lateral step to middle.
-          </p>
+          <p className="text-sm font-semibold text-white/90">{content.drillTitle}</p>
+          <p className="mt-1 text-xs text-white/45">{content.drillBody}</p>
         </div>
       </div>
     </div>
@@ -287,10 +386,17 @@ export function FilmHowItWorks() {
       setAutoPlay(true);
       return;
     }
+    // Warm the analyze clip while the upload step is showing
+    const preload = document.createElement("video");
+    preload.preload = "auto";
+    preload.muted = true;
+    preload.src = DEMO_ANALYZE_SRC;
+    preload.load();
+
     if (!autoPlay) return;
     const id = setInterval(() => {
       setStep((s) => (s < STEPS.length - 1 ? s + 1 : s));
-    }, 3200);
+    }, 4200);
     return () => clearInterval(id);
   }, [open, autoPlay]);
 
@@ -368,9 +474,15 @@ export function FilmHowItWorks() {
             <p className="mt-1 text-sm text-white/50">{current.blurb}</p>
           </div>
 
-          {step === 0 && <UploadStage playing={open && step === 0} />}
-          {step === 1 && <AnalyzeStage playing={open && step === 1} />}
-          {step === 2 && <FeedbackStage playing={open && step === 2} />}
+          <div className={step === 0 ? "block" : "hidden"}>
+            <UploadStage playing={open && step === 0} />
+          </div>
+          <div className={step === 1 ? "block" : "hidden"}>
+            <AnalyzeStage playing={open && step === 1} />
+          </div>
+          <div className={step === 2 ? "block" : "hidden"}>
+            <FeedbackStage playing={open && step === 2} />
+          </div>
         </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-white/5 px-5 py-4 sm:px-6">

@@ -123,7 +123,7 @@ export function VideoDetailClient({ video, analysis, videoUrl, isYouTube }: Prop
             </div>
             <h3 className="text-xl font-bold tracking-tight">Ready to break down this tape</h3>
             <p className="mx-auto mt-2 mb-7 max-w-md text-sm leading-relaxed text-white/50">
-              Get technique notes, drills, and tagged highlight moments from this film.
+              Get notes for each team in the film, then filter down to a specific player.
             </p>
             <Button
               size="lg"

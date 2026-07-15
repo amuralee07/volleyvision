@@ -91,20 +91,47 @@ export async function POST(request: NextRequest) {
       const analysis = await analyzeVideo(geminiFile.uri, geminiFile.mimeType ?? "video/mp4");
 
       // Save analysis (without highlights — clips are separate now)
-      const { data: savedAnalysis, error: saveError } = await supabase
+      // Prefer teams/players columns; fall back if migration 002 isn't applied yet.
+      let savedAnalysis: { id: string } | null = null;
+      const analysisPayload = {
+        video_id: videoId,
+        summary: analysis.summary || "",
+        strengths: analysis.strengths || [],
+        improvements: analysis.improvements || [],
+        teams: analysis.teams || [],
+        players: analysis.players || [],
+        highlights: [],
+        raw_response: analysis,
+      };
+
+      const firstTry = await supabase
         .from("analyses")
-        .insert({
-          video_id: videoId,
-          summary: analysis.summary || "",
-          strengths: analysis.strengths || [],
-          improvements: analysis.improvements || [],
-          highlights: [],
-          raw_response: analysis,
-        })
+        .insert(analysisPayload)
         .select("id")
         .single();
 
-      if (saveError) throw saveError;
+      if (firstTry.error) {
+        console.warn("[Analyze] teams/players insert failed, retrying without columns:", firstTry.error.message);
+        const retry = await supabase
+          .from("analyses")
+          .insert({
+            video_id: videoId,
+            summary: analysis.summary || "",
+            strengths: analysis.strengths || [],
+            improvements: analysis.improvements || [],
+            highlights: [],
+            raw_response: analysis,
+          })
+          .select("id")
+          .single();
+        if (retry.error) throw retry.error;
+        savedAnalysis = retry.data;
+      } else {
+        savedAnalysis = firstTry.data;
+      }
+
+      if (!savedAnalysis) throw new Error("Failed to save analysis");
+
 
       // Step 3: Split video into segments
       console.log("[Analyze] Step 3: Splitting video into segments...");

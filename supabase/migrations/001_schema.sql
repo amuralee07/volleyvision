@@ -69,6 +69,8 @@ create table if not exists analyses (
   summary text not null default '',
   strengths jsonb not null default '[]'::jsonb,
   improvements jsonb not null default '[]'::jsonb,
+  teams jsonb not null default '[]'::jsonb,
+  players jsonb not null default '[]'::jsonb,
   highlights jsonb not null default '[]'::jsonb,
   raw_response jsonb not null default '{}'::jsonb,
   created_at timestamptz default now() not null

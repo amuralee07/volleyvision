@@ -127,13 +127,15 @@ export async function POST(request: NextRequest) {
           await waitForFileReady(geminiFile.name);
         }
 
-        const analysis = await analyzeVideo(geminiFile.uri, geminiFile.mimeType ?? "video/mp4", realDuration);
+        const analysis = await analyzeVideo(geminiFile.uri, geminiFile.mimeType ?? "video/mp4");
 
         const { data: savedAnalysis } = await supabase.from("analyses").insert({
           video_id: videoId,
           summary: analysis.summary || "",
           strengths: analysis.strengths || [],
           improvements: analysis.improvements || [],
+          teams: analysis.teams || [],
+          players: analysis.players || [],
           highlights: analysis.highlights || [],
           raw_response: analysis,
         }).select("id").single();
