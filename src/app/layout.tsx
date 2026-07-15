@@ -25,13 +25,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "VolleyVision — AI Volleyball Coach",
+  title: "VolleyVision — Volleyball Film Analysis",
   description:
-    "Upload your volleyball footage and get AI-powered analysis, coaching tips, and highlight reels for scouting.",
+    "Upload practice or match film. Get technique notes, tagged plays, and scout-ready highlight clips.",
   openGraph: {
-    title: "VolleyVision — AI Volleyball Coach",
+    title: "VolleyVision — Volleyball Film Analysis",
     description:
-      "AI-powered volleyball film analysis, coaching insights, and auto-extracted highlight clips.",
+      "Drop in volleyball film. Get coaching notes, tagged plays, and clips ready for coaches and scouts.",
     type: "website",
   },
 };

@@ -36,8 +36,8 @@ const DEMO_CLIPS = [
 
 const STEPS = [
   "Upload match or practice film",
-  "AI tags key moments automatically",
-  "Clips extracted and ready to share",
+  "Key moments get tagged for you",
+  "Clips cut and ready to share",
   "Build highlight reels in one click",
 ];
 
@@ -52,13 +52,13 @@ export function LandingClipsFeature() {
   return (
     <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
       <div>
-        <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Clip Extraction</p>
+        <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Clips</p>
         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
           Full film in. Highlight clips out.
         </h2>
         <p className="mt-4 text-white/50 leading-relaxed">
-          VolleyVision automatically finds spikes, digs, sets, and aces — then cuts them into
-          shareable clips. No manual scrubbing through hours of footage.
+          Spikes, digs, sets, and aces get cut into shareable clips — no scrubbing through
+          hours of footage by hand.
         </p>
         <ol className="mt-8 space-y-3">
           {STEPS.map((step, i) => (

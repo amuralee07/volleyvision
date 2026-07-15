@@ -5,7 +5,7 @@ import { useState } from "react";
 const FAQS = [
   {
     q: "How does VolleyVision analyze volleyball footage?",
-    a: "VolleyVision uses AI to watch every rally in your video — tracking technique, positioning, and key moments. Upload a match or practice clip and get coaching feedback, drill recommendations, and timestamped highlights automatically.",
+    a: "Upload a match or practice clip and VolleyVision watches every rally — tracking technique, positioning, and key moments. You get coaching notes, drill ideas, and timestamped highlights ready to share.",
   },
   {
     q: "What video formats are supported?",

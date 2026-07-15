@@ -193,7 +193,7 @@ export function VideoUpload() {
             </div>
           )}
 
-          <Button type="submit" className="h-11 w-full rounded-full bg-white font-semibold text-black hover:bg-white/90" disabled={uploading || !title}>
+          <Button type="submit" className="btn-emerald h-11 w-full" disabled={uploading || !title}>
             {uploading ? (
               <>
                 <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -204,7 +204,7 @@ export function VideoUpload() {
                 <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
-                Upload Video
+                Upload film
               </>
             )}
           </Button>

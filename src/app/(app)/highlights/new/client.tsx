@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ClipCard } from "@/components/clip-card";
-import { AppPageHeader, AppEmptyState, AppPanel } from "@/components/app-ui";
+import { AppShell, AppPageHeader, AppEmptyState, AppPanel } from "@/components/app-ui";
 import { toast } from "sonner";
 import type { Clip } from "@/lib/types";
 
@@ -56,36 +56,47 @@ export function ReelBuilderClient({ clipsWithUrls }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10">
+    <AppShell>
       <AppPageHeader
-        eyebrow="Highlight Reel"
+        eyebrow="Reels"
         title="Build your tape"
-        description="Select clips and create a shareable highlight reel for scouts and recruiters."
+        description="Pick clips and stitch a shareable highlight reel for coaches and scouts."
+        meta={
+          clipsWithUrls.length > 0 ? (
+            <span className="font-mono text-[10px] uppercase tracking-wider text-white/40">
+              {selectedIds.length} selected · {clipsWithUrls.length} available
+            </span>
+          ) : undefined
+        }
       />
 
       {clipsWithUrls.length === 0 ? (
         <AppEmptyState
-          icon={<span className="text-3xl">🎬</span>}
-          title="No clips available"
-          description="Upload a video, run AI analysis, and clips will appear here ready to stitch into a reel."
+          icon={
+            <svg className="h-9 w-9 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+          }
+          title="No clips to stitch yet"
+          description="Upload film, run analysis, then come back — clips land here ready for a reel."
         />
       ) : (
         <form onSubmit={handleCreate} className="space-y-6">
-          <AppPanel title="Reel Details" badge={`${selectedIds.length} selected`}>
+          <AppPanel title="Reel details" badge={`${selectedIds.length} selected`}>
             <div className="space-y-2">
-              <Label htmlFor="reel-title">Reel Title</Label>
+              <Label htmlFor="reel-title">Title</Label>
               <Input
                 id="reel-title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., 2026 Spring Season Highlights"
                 required
-                className="h-11"
+                className="h-11 border-white/10 bg-white/[0.03]"
               />
             </div>
           </AppPanel>
 
-          <AppPanel title="Select Clips" badge={`${clipsWithUrls.length} available`}>
+          <AppPanel title="Select clips" badge={`${clipsWithUrls.length} available`}>
             <div className="grid gap-4 sm:grid-cols-2">
               {clipsWithUrls.map(({ clip, url }) => (
                 <ClipCard
@@ -102,13 +113,15 @@ export function ReelBuilderClient({ clipsWithUrls }: Props) {
 
           <Button
             type="submit"
-            className="w-full rounded-full bg-white py-6 text-black hover:bg-white/90"
+            className="btn-emerald h-12 w-full"
             disabled={saving || selectedIds.length === 0}
           >
-            {saving ? "Creating..." : `Create Highlight Reel (${selectedIds.length} clips)`}
+            {saving
+              ? "Creating..."
+              : `Create reel · ${selectedIds.length} clip${selectedIds.length !== 1 ? "s" : ""}`}
           </Button>
         </form>
       )}
-    </div>
+    </AppShell>
   );
 }

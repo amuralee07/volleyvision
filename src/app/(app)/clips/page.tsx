@@ -1,8 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { AppPageHeader, AppEmptyState, AppPanel } from "@/components/app-ui";
+import {
+  AppShell,
+  AppPageHeader,
+  AppEmptyState,
+  AppPanel,
+  AppMetaChip,
+} from "@/components/app-ui";
 import Link from "next/link";
 
 interface ClipRow {
@@ -26,16 +30,16 @@ function formatTime(seconds: number): string {
 }
 
 const labelColors: Record<string, string> = {
-  spike: "bg-red-500/15 text-red-400 border-red-500/25",
-  block: "bg-white/10 text-white/70 border-white/15",
-  ace: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
-  serve: "bg-purple-500/15 text-purple-400 border-purple-500/25",
-  dig: "bg-amber-500/15 text-amber-400 border-amber-500/25",
-  rally: "bg-orange-500/15 text-orange-400 border-orange-500/25",
-  set: "bg-cyan-500/15 text-cyan-400 border-cyan-500/25",
-  save: "bg-teal-500/15 text-teal-400 border-teal-500/25",
-  kill: "bg-red-500/15 text-red-400 border-red-500/25",
-  defense: "bg-white/10 text-white/70 border-white/15",
+  spike: "border-red-500/30 bg-red-500/15 text-red-300",
+  block: "border-white/20 bg-white/10 text-white/70",
+  ace: "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
+  serve: "border-violet-500/30 bg-violet-500/15 text-violet-300",
+  dig: "border-amber-500/30 bg-amber-500/15 text-amber-300",
+  rally: "border-orange-500/30 bg-orange-500/15 text-orange-300",
+  set: "border-cyan-500/30 bg-cyan-500/15 text-cyan-300",
+  save: "border-teal-500/30 bg-teal-500/15 text-teal-300",
+  kill: "border-red-500/30 bg-red-500/15 text-red-300",
+  defense: "border-white/20 bg-white/10 text-white/70",
 };
 
 function getLabelColor(label: string) {
@@ -43,7 +47,7 @@ function getLabelColor(label: string) {
   for (const [k, v] of Object.entries(labelColors)) {
     if (key.includes(k)) return v;
   }
-  return "bg-secondary text-secondary-foreground";
+  return "border-white/15 bg-white/5 text-white/60";
 }
 
 export default async function ClipsPage() {
@@ -55,7 +59,6 @@ export default async function ClipsPage() {
     .order("start_time", { ascending: true })
     .returns<ClipRow[]>();
 
-  // Resolve all clip URLs upfront
   const clipUrls = new Map<string, string>();
   for (const clip of clips || []) {
     if (clip.storage_path) {
@@ -66,7 +69,10 @@ export default async function ClipsPage() {
     }
   }
 
-  const grouped = new Map<string, { title: string; videoPath: string; clips: ClipRow[] }>();
+  const grouped = new Map<
+    string,
+    { title: string; videoPath: string; clips: ClipRow[] }
+  >();
   for (const clip of clips || []) {
     const existing = grouped.get(clip.video_id);
     if (existing) {
@@ -83,19 +89,29 @@ export default async function ClipsPage() {
   const totalClips = clips?.length || 0;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
+    <AppShell wide>
       <AppPageHeader
-        eyebrow="Clip Extraction"
+        eyebrow="Clips"
         title="Your highlight clips"
         description={
           totalClips > 0
-            ? `${totalClips} clip${totalClips !== 1 ? "s" : ""} from ${grouped.size} video${grouped.size !== 1 ? "s" : ""} — auto-tagged by AI.`
-            : "Upload and analyze a video — spikes, digs, sets, and aces appear here automatically."
+            ? "Tagged moments from your film — ready to review, download, or stitch into a reel."
+            : "After you analyze a tape, spikes, digs, sets, and aces show up here as cut clips."
+        }
+        meta={
+          totalClips > 0 ? (
+            <>
+              <AppMetaChip tone="emerald">{totalClips} clips</AppMetaChip>
+              <AppMetaChip>
+                {grouped.size} tape{grouped.size !== 1 ? "s" : ""}
+              </AppMetaChip>
+            </>
+          ) : undefined
         }
         action={
           totalClips > 0 ? (
-            <Button className="rounded-full bg-white text-black hover:bg-white/90" render={<Link href="/highlights/new" />}>
-              Build Highlight Reel
+            <Button className="btn-emerald px-6" render={<Link href="/highlights/new" />}>
+              Build reel
             </Button>
           ) : undefined
         }
@@ -104,76 +120,102 @@ export default async function ClipsPage() {
       {totalClips === 0 ? (
         <AppEmptyState
           icon={
-            <svg className="h-8 w-8 text-emerald-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+            <svg
+              className="h-9 w-9 text-emerald-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"
+              />
             </svg>
           }
           title="No clips yet"
-          description="Upload a video and run AI analysis — key moments will automatically appear here as clips."
+          description="Upload a video and run analysis — key moments cut into clips you can share."
           action={
-            <Button className="rounded-full bg-white text-black hover:bg-white/90" render={<Link href="/upload" />}>
-              Upload a Video
+            <Button className="btn-emerald px-8" render={<Link href="/upload" />}>
+              Upload film
             </Button>
           }
         />
       ) : (
         <div className="space-y-8">
           {Array.from(grouped.entries()).map(([videoId, group]) => (
-            <AppPanel key={videoId} title={group.title} badge={`${group.clips.length} clips`}>
-              <div className="mb-4">
+            <AppPanel
+              key={videoId}
+              title={group.title}
+              badge={`${group.clips.length} clips`}
+              action={
                 <Link
                   href={`/video/${videoId}`}
-                  className="text-sm text-emerald-400/80 transition-colors hover:text-emerald-400"
+                  className="font-mono text-[10px] uppercase tracking-wider text-emerald-400/70 transition-colors hover:text-emerald-300"
                 >
-                  View full analysis →
+                  Open tape →
                 </Link>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              }
+            >
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {group.clips.map((clip) => {
                   const clipUrl = clipUrls.get(clip.id) || "";
+                  const duration = Math.round(clip.end_time - clip.start_time);
                   return (
-                    <div key={clip.id}>
-                      <Card className="overflow-hidden border-white/10 bg-white/[0.03] transition-all hover:border-white/20 hover:bg-white/[0.05]">
-                        {clipUrl ? (
-                          <div className="bg-black">
-                            <video
-                              src={clipUrl}
-                              controls
-                              className="w-full aspect-video"
-                              preload="metadata"
-                            />
-                          </div>
-                        ) : (
-                          <Link href={`/video/${clip.video_id}`}>
-                            <div className="flex aspect-video cursor-pointer items-center justify-center bg-gradient-to-br from-white/5 to-emerald-500/10">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white shadow-sm">
-                                <svg className="h-5 w-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                                  <path d="M8 5v14l11-7z" />
-                                </svg>
-                              </div>
+                    <div
+                      key={clip.id}
+                      className="group overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] transition-all hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.04]"
+                    >
+                      {clipUrl ? (
+                        <div className="relative bg-black">
+                          <video
+                            src={clipUrl}
+                            controls
+                            className="aspect-video w-full"
+                            preload="metadata"
+                          />
+                        </div>
+                      ) : (
+                        <Link href={`/video/${clip.video_id}`}>
+                          <div className="relative flex aspect-video cursor-pointer items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-500/10 via-white/[0.04] to-transparent">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white shadow-sm backdrop-blur-sm transition-transform group-hover:scale-105">
+                              <svg
+                                className="ml-0.5 h-5 w-5"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
                             </div>
-                          </Link>
-                        )}
-                        <CardContent className="p-3">
-                          <div className="mb-1 flex items-center gap-2">
-                            <Badge variant="outline" className={`border text-[10px] font-semibold ${getLabelColor(clip.label)}`}>
-                              {clip.label}
-                            </Badge>
-                            <span className="font-mono text-[10px] text-white/40">
-                              {formatTime(clip.start_time)}
-                            </span>
-                            <span className="text-[10px] text-white/30">
-                              · {Math.round(clip.end_time - clip.start_time)}s
-                            </span>
                           </div>
-                          {clip.description && (
-                            <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{clip.description}</p>
-                          )}
-                          {clip.player_feedback && (
-                            <p className="mt-1 line-clamp-2 text-xs italic text-emerald-400/80">{clip.player_feedback}</p>
-                          )}
-                        </CardContent>
-                      </Card>
+                        </Link>
+                      )}
+                      <div className="p-3.5">
+                        <div className="mb-2 flex items-center gap-2">
+                          <span
+                            className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider ${getLabelColor(clip.label)}`}
+                          >
+                            {clip.label}
+                          </span>
+                          <span className="font-mono text-[10px] text-white/35">
+                            {formatTime(clip.start_time)}
+                          </span>
+                          <span className="font-mono text-[10px] text-white/25">
+                            · {duration}s
+                          </span>
+                        </div>
+                        {clip.description && (
+                          <p className="line-clamp-2 text-xs leading-relaxed text-white/45">
+                            {clip.description}
+                          </p>
+                        )}
+                        {clip.player_feedback && (
+                          <p className="mt-1.5 line-clamp-2 text-xs italic text-emerald-400/75">
+                            {clip.player_feedback}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -182,6 +224,6 @@ export default async function ClipsPage() {
           ))}
         </div>
       )}
-    </div>
+    </AppShell>
   );
 }

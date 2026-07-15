@@ -30,6 +30,16 @@ function getDemoErrorMessage(error: unknown): string {
   if (message.includes("SUPABASE_SERVICE_ROLE_KEY")) {
     return "Save SUPABASE_SERVICE_ROLE_KEY in .env.local, then restart the dev server.";
   }
+  if (
+    message.includes("Can't reach Supabase") ||
+    message.includes("doesn't resolve") ||
+    message.includes("ENOTFOUND") ||
+    message === "fetch failed"
+  ) {
+    return message === "fetch failed"
+      ? "Can't reach your Supabase project. Update NEXT_PUBLIC_SUPABASE_URL and keys in .env.local, then restart the dev server."
+      : message;
+  }
 
   return message || "Couldn't start the demo. Please try again.";
 }

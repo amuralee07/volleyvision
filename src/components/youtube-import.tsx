@@ -104,7 +104,7 @@ export function YouTubeImport() {
 
         <Button
           type="submit"
-          className="h-11 w-full rounded-full bg-white font-semibold text-black hover:bg-white/90"
+          className="btn-emerald h-11 w-full"
           disabled={loading || !isValidUrl}
         >
           {loading ? (

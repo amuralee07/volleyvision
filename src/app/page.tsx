@@ -11,11 +11,11 @@ import { CountUp } from "@/components/count-up";
 const NAV_LINKS = ["Features", "How it works", "FAQ"];
 
 const TRACKING_POINTS = [
-  "Frame-by-frame technique analysis",
-  "Approach timing, arm swing, and positioning",
-  "Insights invisible to the naked eye",
-  "Automated highlight detection",
-  "Auto-extracted clips from every upload",
+  "Approach timing, arm swing, and footwork",
+  "Positioning and decision-making by rally",
+  "Moments you'd miss scrubbing at 1x",
+  "Key plays tagged with timestamps",
+  "Clips cut and ready after every upload",
 ];
 
 const HIGHLIGHT_STATS = [
@@ -70,31 +70,40 @@ export default function LandingPage() {
 
         <div className="relative mx-auto max-w-6xl">
           <Reveal>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              </span>
-              <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-400/80">Powered by AI</span>
-            </div>
+            <p className="mb-4 font-mono text-xs uppercase tracking-[0.3em] text-emerald-400/80">
+              VolleyVision
+            </p>
           </Reveal>
 
           <Reveal delay={80}>
             <h1 className="max-w-4xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-7xl lg:leading-[1.05]">
-              AI coaching for{" "}
-              <span className="text-gradient-emerald">volleyball</span>
+              Stop scrubbing tape.
+              <br />
+              <span className="text-gradient-emerald">Start fixing technique.</span>
             </h1>
           </Reveal>
 
           <Reveal delay={160}>
-            <p className="mt-5 max-w-2xl text-base text-white/50 sm:text-lg leading-relaxed">
-              AI and computer vision to automatically analyze practice or match film and produce
-              coaching insights for players, coaches, and scouts.
+            <p className="mt-5 max-w-xl text-base text-white/50 sm:text-lg leading-relaxed">
+              Drop in practice or match film. Get clear notes on approach, positioning, and
+              decisions — plus clips you can send to coaches and scouts.
             </p>
           </Reveal>
 
-          <Reveal delay={240}>
-            <div className="relative mt-10">
+          <Reveal delay={200}>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Button size="lg" className="btn-emerald px-8" render={<Link href="/signup" />}>
+                Upload your film
+              </Button>
+              <DemoButton
+                variant="outline"
+                className="rounded-full border-white/20 bg-transparent px-8 text-white hover:bg-white/5"
+              />
+            </div>
+          </Reveal>
+
+          <Reveal delay={280}>
+            <div className="relative mt-12">
               <div className="pointer-events-none absolute -inset-4 rounded-3xl bg-emerald-500/10 blur-3xl" />
               <LandingHeroHud />
             </div>
@@ -112,8 +121,8 @@ export default function LandingPage() {
                 <CountUp end={50000} suffix="+" className="text-gradient-emerald" />
               </h2>
               <p className="mt-5 max-w-md text-white/50 leading-relaxed">
-                Like having a coach watching every inch of the court. Thousands of data points per
-                match reveal technique insights invisible to the human eye.
+                Like a coach on every inch of the court. Technique notes you&apos;d never catch
+                scrubbing through the tape alone.
               </p>
             </div>
           </Reveal>
@@ -148,11 +157,11 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl">
           <Reveal>
             <div className="mb-12 max-w-xl">
-              <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Highlight Detection</p>
+              <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Highlights</p>
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Every key moment, tagged.</h2>
               <p className="mt-4 text-white/50 leading-relaxed">
-                Spikes, blocks, aces, and digs are automatically identified with timestamps —
-                then saved as individual clips you can review, download, and share.
+                Spikes, blocks, aces, and digs land with timestamps — then cut into clips you can
+                review, download, and share.
               </p>
             </div>
           </Reveal>
@@ -177,11 +186,11 @@ export default function LandingPage() {
         <div className="mx-auto grid max-w-6xl gap-16 lg:grid-cols-2">
           <Reveal>
             <div>
-              <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Computer Vision</p>
+              <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">On the court</p>
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Track every movement.</h2>
               <p className="mt-4 text-white/50 leading-relaxed">
-                AI tracks player positioning, approach patterns, and technique frame-by-frame.
-                Get detailed feedback on timing, footwork, and decision-making.
+                Follow positioning, approach patterns, and technique through the rally.
+                Then get notes on timing, footwork, and the choices that cost points.
               </p>
 
               <div className="mt-8 grid grid-cols-3 gap-3">
@@ -201,11 +210,11 @@ export default function LandingPage() {
 
           <Reveal delay={120}>
             <div>
-              <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">AI Assistant</p>
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Transform film into insights.</h2>
+              <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Film room</p>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Hours of film. Minutes of notes.</h2>
               <p className="mt-4 text-white/50 leading-relaxed">
-                AI automatically tags plays, analyzes technique, and identifies key moments.
-                Turn hours of footage into searchable, actionable coaching data.
+                Plays get tagged, technique gets flagged, and the best moments rise to the top —
+                so you leave the film session with something to run in practice.
               </p>
               <div className="mt-8">
                 <LandingFilmTags />
@@ -220,8 +229,8 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl">
           <Reveal>
             <div className="mb-12 text-center">
-              <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Personalized Coaching</p>
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Strengths, drills, and feedback.</h2>
+              <p className="mb-3 font-mono text-xs uppercase tracking-[0.25em] text-emerald-400/80">Coaching notes</p>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">What&apos;s working. What to drill next.</h2>
             </div>
           </Reveal>
 
@@ -267,10 +276,10 @@ export default function LandingPage() {
               <br />
               <span className="text-white/50">less time analyzing.</span>
             </h2>
-            <p className="mt-5 text-white/40">Film analysis in minutes, not hours.</p>
+            <p className="mt-5 text-white/40">Match film broken down before the next practice.</p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button size="lg" className="btn-emerald px-8" render={<Link href="/signup" />}>
-                Get Started
+                Upload your film
               </Button>
               <DemoButton variant="outline" className="rounded-full border-white/20 bg-transparent px-8 text-white hover:bg-white/5" />
             </div>
@@ -285,7 +294,7 @@ export default function LandingPage() {
             <div className="logo-emerald flex h-7 w-7 items-center justify-center rounded-md text-[10px] font-bold text-black">VV</div>
             <span className="text-sm font-bold tracking-[0.15em] uppercase">VolleyVision</span>
           </div>
-          <p className="text-xs text-white/30">Built with AI &amp; Computer Vision</p>
+          <p className="text-xs text-white/30">Film analysis for volleyball</p>
           <p className="text-xs text-white/30">&copy; {new Date().getFullYear()} VolleyVision</p>
         </div>
       </footer>
